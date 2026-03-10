@@ -1,0 +1,4240 @@
+{
+  "name": "Financial Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -10352,
+        3664
+      ],
+      "id": "bb0aebd2-b16f-44cd-9185-8df9659b5ecf",
+      "name": "Telegram Trigger",
+      "webhookId": "ae9cf0be-113b-44e8-bdb3-5dda1f3572dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "type",
+              "description": "**Persona:** Act as a highly accurate financial transaction text classifier.\n\n**Context:** You will analyze short user messages representing personal financial transactions to categorize them for expense tracking and budgeting.\n\n**Task:** Classify each provided user message into *one* of the following Transaction Modes: \"Online\", \"Daily\", \"income\", or \"expense\".\n\n**Definitions:**\n\n*   **Online:** Transactions made through a website or app (e.g., Amazon, Swiggy, Groww) – including online shopping, subscriptions, and online investments.\n*   **Daily:** Transactions made in person at a physical location, often mentioning a merchant, UPI, cash, or card swipe.\n*   **Income:** Money received (salary, refunds, payments from others).\n*   **Expense:** Money sent to another person.\n\n**Input Data:** [Provide the user message here].\n\n**Output Format:** Return *only* the single, most appropriate Transaction Mode label, formatted exactly as: `<Transaction Mode>`.  Valid outputs are: \"Online\", \"Daily\", \"income\", or \"expense\".  Do *not* include any additional text or explanation.\n\n**Constraints:**\n\n*   You *must* select only one Transaction Mode per message.\n*   Adhere strictly to the specified output format.\n*   If the message is ambiguous or doesn't clearly fit any category, select the most likely option based on the provided definitions..\n\n**Goal:** To accurately and consistently classify financial transactions with maximum precision. \nAlways follow these rules\n**important**: if no input dont make things up give ouput**unknown**"
+            },
+            {
+              "name": "item",
+              "description": "Extract the main spending item from a given text message about a purchase or expense. The text may contain the platform, product name, amount, or context (e.g., “Amazon shoes 1200” or “Lunch at Cafe Coffee Day 350”). The AI should identify what the item or service is (e.g., “shoes,” “lunch”) and ignore the amount, platform, or other metadata. The output should be concise, clear, and suitable for categorization in a personal spending report."
+            },
+            {
+              "name": "amount",
+              "type": "number",
+              "description": "The monetary amount. \nAlways follow these rules\n**important**: if no input dont make things up"
+            },
+            {
+              "name": "category",
+              "description": "Food & groceries  Dining out / restaurants / cafes  Snacks & beverages  Coffee / tea / drinks  Petrol / fuel  Vehicle maintenance / repairs  Parking / tolls / road fees  Public transport / rideshare / taxi / metro / bus  Rent / mortgage  Utilities (electricity, water, gas)  Internet / broadband / Wi-Fi  Mobile phone / recharge / data packs  Streaming services (Netflix, Spotify, Disney+, etc.)  Insurance (health, vehicle, home, life)  Medical / pharmacy / doctor visits / consultations  Fitness / gym / yoga / sports / equipment  Education / tuition / online courses / books / stationery  Subscriptions (magazines, apps, memberships)  Clothing / shoes / accessories  Personal care / grooming / cosmetics / skincare / haircuts  Entertainment (movies, gaming, concerts, events)  Travel / trips / hotels / flights / tickets  Gifts / charity / donations  Household items / furniture / decor / cleaning / maintenance  Electronics / gadgets / accessories  Online shopping (Amazon, Flipkart, Myntra, etc.)  Bank / financial charges / ATM fees / credit card fees  Investments / mutual funds / stocks / SIPs / crypto  Emergency expenses / unforeseen costs  Pet care / food / grooming / vet  Hobbies / crafts / DIY materials  Coffee shops / bakery / takeaway  Party / celebration expenses  Smoking / alcohol / bars / clubs  Parking fines / traffic fines  Software / apps / digital tools  Vehicle insurance / registration / tax  Laundry / dry cleaning  Stationery / office supplies  Courier / shipping charges  Repairs / maintenance (electronics, appliances)  Home improvement / renovation  Gardening / plants  Water / mineral water / bottled drinks  Toiletries / hygiene products  Travel insurance  Club / community fees  Gaming subscriptions / in-game purchases  Photo / printing / framing  Music / instruments  Language / skill learning  Miscellaneous small daily expenses"
+            },
+            {
+              "name": "platform",
+              "description": "Extract the platform, store, or service mentioned in the given text where the transaction occurred. This could be an online marketplace, app, website, or offline store (e.g., “Amazon,” “Flipkart,” “Myntra,” “Domino’s”).  If a platform is explicitly mentioned, return it exactly as written.  If no platform is mentioned, return “Unknown”."
+            },
+            {
+              "name": "payment",
+              "description": "Extract the payment method from the given text. The text may mention a payment platform, card, wallet, or method (e.g., “paid via Paytm,” “using credit card,” “UPI transfer”).  If a payment method is explicitly mentioned, use that.  If no payment method is mentioned, default to “GPay”."
+            },
+            {
+              "name": "note",
+              "description": "Extract any note, remark, or additional information mentioned in the given text about a spending or transaction. A note can be any extra description, purpose, or context provided beyond the item name, amount, or payment method.  If a note is present, return it exactly as written.  If no note is specified, return “No note”."
+            },
+            {
+              "name": "status",
+              "description": "Extract the status of the online order from the given text. The status could be words like delivered, shipped, cancelled, returned, processing, etc.  If the status is explicitly mentioned, return it exactly as written.  If no status is specified, return “Pending”."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -9136,
+        1920
+      ],
+      "id": "67d03f21-44e5-4632-8e11-41e03b9d9394",
+      "name": "Unified Extractor",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "42b354da-fafc-436e-b044-67636a4fa2fa",
+              "leftValue": "={{ $json.output.platform }}",
+              "rightValue": "Unknown",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -7984,
+        1856
+      ],
+      "id": "79027a78-d7cc-4ca5-a6e0-66f660f01cbf",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $now.toISODate() }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('month').item.json['month '][0].id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2864,
+        4848
+      ],
+      "id": "761372e8-e11c-4f1d-91b2-ec72681091d6",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $now.toFormat('yyyy-MM-dd_HH-mm-ss') }}.{{ $binary.data.fileExtension }}\n",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('date').item.json.date[0].id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1968,
+        4960
+      ],
+      "id": "fb8b92fc-2596-4df9-84d5-7f0eb3873d62",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.document.file_id }}",
+        "additionalFields": {
+          "mimeType": "={{ $('Telegram Trigger').item.json.message.document.mime_type }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2192,
+        4800
+      ],
+      "id": "ee790c05-2b9f-4bd7-a11d-39f424831bca",
+      "name": "Get a file",
+      "webhookId": "07c6376b-8bf7-478d-a1b6-dcd81babf5b6",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "messageId": "={{ $('Uploading').first().json.result.message_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1520,
+        4960
+      ],
+      "id": "9a0f5086-9433-4733-81ca-1d81d59bc77e",
+      "name": "Delete a chat message",
+      "webhookId": "0d8c7540-d406-456b-a53f-47473c1524d4",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.from.id }}",
+        "text": "Processing...",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -9408,
+        2144
+      ],
+      "id": "3d1e8905-1be7-4e80-b345-5fe8fb385e33",
+      "name": "Processing",
+      "webhookId": "586ccc7d-f15e-4e6e-9054-ad0aabff4842",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Uploading....",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -8816,
+        4944
+      ],
+      "id": "3abe118c-817e-406f-964c-2a74098f8603",
+      "name": "Uploading",
+      "webhookId": "eebe8c91-5e02-43b3-850a-bce1c233a23e",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Please Provide the platform",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -5312,
+        1728
+      ],
+      "id": "f3109a6a-a380-4be0-86c3-805691e281f5",
+      "name": "Platform Request",
+      "webhookId": "b45c3970-ebef-4898-981f-ab2ec55e1c5e",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1455801-1baf-479f-9676-782ac40687c7",
+              "leftValue": "={{$json[\"message\"][\"text\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -9984,
+        3664
+      ],
+      "id": "6be29969-ffb8-4033-9ca0-6d4dfaf13a06",
+      "name": "Image/Text"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "Uploaded",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1744,
+        4960
+      ],
+      "id": "0168cd75-8ef6-4648-8e46-9b775358f62c",
+      "name": "Confirmation Message",
+      "webhookId": "2fee7ee7-3429-4589-89c1-3d1401374cfe",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "=Sucessfully added\nDate: {{ $json.DATE }}\nAmount:{{ $json.INCOME }}\nPlatfrom:{{ $json.PLATFORM }}\nName :{{ $json.NAME }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3536,
+        2208
+      ],
+      "id": "05d8c4bc-1e8f-42b0-98e3-179553aa9a73",
+      "name": "Confirmation Message expese",
+      "webhookId": "8616ea1c-358d-4154-a827-066f3d74f631",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "=Sucessfully added\nDate: {{ $json.DATE }}\nAmount:{{ $json['MONEY GIVEN'] }}\nPlatfrom:{{ $json.PLATFORM }}\nName :{{ $json.NAME }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3520,
+        2416
+      ],
+      "id": "adff799a-c202-4da3-93ae-63dc779e0aac",
+      "name": "Confirmation Message income",
+      "webhookId": "f2e305c8-ed84-4a06-b1f2-17027120ebde",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.from.id }}",
+        "text": "=Sucessfully adedd:\nDate(now): {{ $now.toISODate() }}\nItem: {{ $json.ITEM }}\nCategory: {{ $('Edit Fields4').item.json.CATEGORIES }}\nAmount: {{ $json.AMOUNT }}\nPayment Method: {{ $('Edit Fields4').item.json.PAYMENT }}\nPlatform: {{ $json.PLATFORM }}\nStatus: {{ $json.STATUS }}\nNote: {{ $('Edit Fields4').item.json.NOTE }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3536,
+        1856
+      ],
+      "id": "d748dc44-b9ec-4df3-90e4-dc810618d19d",
+      "name": "Confirmation Message Online",
+      "webhookId": "8cf37366-76fe-4f16-9940-9debf171a21a",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.from.id }}",
+        "text": "=Sucessfully adedd:\nDate(now): {{ $json.DATE }}\nItem: {{ $json.ITEM }}\nCategory: {{ $json.CATEGORIES }}\nAmount: {{ $json.AMOUNT }}\nPayment Method: {{ $json.PAYMENT }}\nNote: {{ $json.NOTE }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -3536,
+        1216
+      ],
+      "id": "8112d6e3-be3d-431a-b72a-10a12fbfc3c0",
+      "name": "Confirmation Message Daily",
+      "webhookId": "3cdbf98b-82ce-48c1-bfa0-777956ecb411",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -9104,
+        2192
+      ],
+      "id": "5348695b-a987-436a-8147-d383545e01a6",
+      "name": "DeepSeek Chat Model2",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "7WUlZxCLTB1BLn95",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"name\": \"Snacks & Beverages\",\n  \"new\": 0\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -6352,
+        1472
+      ],
+      "id": "7f9fb648-777f-4037-9329-7ea5935f297d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -6560,
+        1472
+      ],
+      "id": "4975f995-b038-45a5-a6c7-08c4c36d6491",
+      "name": "DeepSeek Chat Model6",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "7WUlZxCLTB1BLn95",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=**Persona:** Act as a meticulous category librarian responsible for maintaining a consistent and user-friendly catalog of items.\n\n**Context:** You have access to a database representing existing categories . Your role is to ensure new categories are either matched to existing ones or created with clear, standardized names.  The goal is to improve searchability and organization.\n\n**Task:** Given a new category extracted from user input, compare it to the existing categories in your database. Determine if a similar category already exists. If so, use the existing category name. If not, create a new, normalized category name that follows the existing naming conventions.\n\n**Input Data:**\n* **Existing Categories:** {{ $json.data }}.\n* **New Category:** {{ $('Unified Extractor').first().json.output.category }}.\n\n**Specific Details & Constraints:**\n* **Similarity Matching:** Consider categories similar in meaning, even if not exact matches (e.g., \"coffee takeaway\" is similar to \"Coffee / Tea / Drinks\").  Focus on the core concept of the category.\n* **Naming Conventions:**  Pay attention to the style and structure of existing category names (e.g., capitalization, use of slashes, level of detail).\n* **New Category Flag:**  Indicate whether the category is new (1) or an existing match (0).\n\n**Format/Output Constraints:** Output *only* a JSON object with the following keys: `\"category\"` (the final normalized category name) and `\"new\"` (0 or 1).  Do not include any other text or explanations.\n\n**Example Output:**\n\n```json\n{\n  \"category\": \"Coffee / Tea / Drinks\",\n  \"new\": 0\n}\n```\n\nor\n\n```json\n{\n  \"category\": \"Outdoor Gear / Camping\",\n  \"new\": 1\n}\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -6512,
+        1216
+      ],
+      "id": "35304f23-492a-48ff-98b2-5fff30df7d47",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "collection": "categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -7728,
+        1216
+      ],
+      "id": "7526c81d-1066-4f05-9e5d-933269d694aa",
+      "name": "Find documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "xiI1fYdCq0KpMtVc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f63fdc1b-4450-4914-b13b-279d6aea8b1a",
+              "leftValue": "={{ $json.output.new }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -5856,
+        1216
+      ],
+      "id": "4a48ab05-196f-4698-9e28-fb1ef62b8394",
+      "name": "DB Checker"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "86565f5d-8846-4075-9016-dfbf936f263d",
+              "name": "name",
+              "value": "={{ $('AI Agent').item.json.output.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4512,
+        1152
+      ],
+      "id": "9d047a5c-90ff-48b6-af02-f3d14ce61302",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "categories",
+        "fields": "=name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -4288,
+        1152
+      ],
+      "id": "f382d20b-f614-4348-ada6-8576ec298494",
+      "name": "Insert documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "xiI1fYdCq0KpMtVc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -7760,
+        1856
+      ],
+      "id": "7da6a1f1-4547-47c1-984a-75bdf433e12e",
+      "name": "Find documents1",
+      "credentials": {
+        "mongoDb": {
+          "id": "xiI1fYdCq0KpMtVc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f63fdc1b-4450-4914-b13b-279d6aea8b1a",
+              "leftValue": "={{ $json.output.new }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -5312,
+        1952
+      ],
+      "id": "8f362f25-e48c-42b6-8102-1cff7066fbbe",
+      "name": "DB Checker1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "86565f5d-8846-4075-9016-dfbf936f263d",
+              "name": "name",
+              "value": "={{ $('user chat model').item.json.output.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4544,
+        1728
+      ],
+      "id": "b1d9c419-bf15-4bd9-9107-dbd3446946e2",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "categories",
+        "fields": "=name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -4096,
+        1728
+      ],
+      "id": "64f3425f-e576-4407-8a09-fbd9f1d650c8",
+      "name": "Insert documents1",
+      "credentials": {
+        "mongoDb": {
+          "id": "xiI1fYdCq0KpMtVc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -6560,
+        1984
+      ],
+      "id": "b8556b3c-ec33-41d9-8742-728f58e8aec1",
+      "name": "DeepSeek Chat Model7",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "7WUlZxCLTB1BLn95",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"name\": \"Snacks & Beverages\",\n  \"new\": 0\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -6304,
+        2000
+      ],
+      "id": "d695dd7f-cd48-4b92-8c2f-cea0ca7d96c7",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.result.chat.id }}",
+        "messageId": "={{ $('Processing').first().json.result.message_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2944,
+        1728
+      ],
+      "id": "8d4a78b0-dd88-4902-9b56-bea959bd467b",
+      "name": "Delete a chat message1",
+      "webhookId": "9ac3d807-85de-4a83-abd3-a9e1a44a6ce8",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "DSR_RAW_DATA",
+        "fields": "=USER_ID,CATEGORIES,ITEM,AMOUNT,PAYMENT,NOTE,MODE,DATE",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -3776,
+        1216
+      ],
+      "id": "3b90f151-5705-466e-9d81-e4933809d1bb",
+      "name": "Insert documents2",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "167f21ea-071d-4c74-9e5a-154a1fe1cc6d",
+              "name": "USER_ID",
+              "value": "={{ $('Telegram Trigger').first().json.message.from.id }}",
+              "type": "number"
+            },
+            {
+              "id": "a639e1cb-60dd-4627-8afc-4a27f7a601f1",
+              "name": "CATEGORIES",
+              "value": "={{ $('AI Agent').item.json.output.name }}",
+              "type": "string"
+            },
+            {
+              "id": "c5584aa7-ae84-450b-9540-d90c63933a6a",
+              "name": "ITEM",
+              "value": "={{ $('Unified Extractor').first().json.output.item }}",
+              "type": "string"
+            },
+            {
+              "id": "7934ad26-b994-4624-9385-18f620553b64",
+              "name": "AMOUNT",
+              "value": "={{ $('Unified Extractor').first().json.output.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "af9e0d2d-4ed0-4e1d-b594-92bf5518217b",
+              "name": "PAYMENT",
+              "value": "={{ $('Unified Extractor').first().json.output.payment }}",
+              "type": "string"
+            },
+            {
+              "id": "b6bdc2bb-17d7-42ab-a53d-5c9d63df1c89",
+              "name": "NOTE",
+              "value": "={{ $('Unified Extractor').first().json.output.note }}",
+              "type": "string"
+            },
+            {
+              "id": "ea2c68e2-33a0-42df-8cc4-47ff947b0dc1",
+              "name": "DATE",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            },
+            {
+              "id": "1913466b-1578-49e4-8882-03ea5dc8872d",
+              "name": "MODE",
+              "value": "OFFLINE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4000,
+        1216
+      ],
+      "id": "91e9ba14-3d75-40c2-9d69-c1c6134203c0",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "collection": "DSR_RAW_DATA",
+        "options": {},
+        "query": "={\n  \"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}\n}\n"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -8512,
+        4208
+      ],
+      "id": "80103592-93a4-43c2-acb4-bbfb9a9a1f42",
+      "name": "Find documents2",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "79448ae2-55a6-4d99-89d3-42dd777b01f2",
+              "name": "USER_ID",
+              "value": "={{ $json.USER_ID }}",
+              "type": "number"
+            },
+            {
+              "id": "ea2c68e2-33a0-42df-8cc4-47ff947b0dc1",
+              "name": "DATE",
+              "value": "={{ $json.DATE }}",
+              "type": "string"
+            },
+            {
+              "id": "a639e1cb-60dd-4627-8afc-4a27f7a601f1",
+              "name": "CATEGORIES",
+              "value": "={{ $json.CATEGORIES }}",
+              "type": "string"
+            },
+            {
+              "id": "c5584aa7-ae84-450b-9540-d90c63933a6a",
+              "name": "ITEM",
+              "value": "={{ $json.ITEM }}",
+              "type": "string"
+            },
+            {
+              "id": "7934ad26-b994-4624-9385-18f620553b64",
+              "name": "AMOUNT",
+              "value": "={{ $json.AMOUNT }}",
+              "type": "number"
+            },
+            {
+              "id": "af9e0d2d-4ed0-4e1d-b594-92bf5518217b",
+              "name": "PAYMENT",
+              "value": "={{ $json.PAYMENT }}",
+              "type": "string"
+            },
+            {
+              "id": "b6bdc2bb-17d7-42ab-a53d-5c9d63df1c89",
+              "name": "NOTE",
+              "value": "={{ $json.NOTE }}",
+              "type": "string"
+            },
+            {
+              "id": "7f9cdc56-900e-45c6-94a4-f14d4f6c81e7",
+              "name": "NAME",
+              "value": "={{ $json.NAME }}",
+              "type": "string"
+            },
+            {
+              "id": "af9bf538-7605-4aa4-b1c0-a9d7e2efe2d4",
+              "name": "MONEY GIVEN",
+              "value": "={{ $json['MONEY GIVEN'] }}",
+              "type": "string"
+            },
+            {
+              "id": "78cf3521-627a-4c56-a5c4-7d1b5ead5b9c",
+              "name": "PLATFORM",
+              "value": "={{ $json.PLATFORM }}",
+              "type": "string"
+            },
+            {
+              "id": "c0cf0fd3-93bc-4186-b81b-70162193af9c",
+              "name": "INCOME",
+              "value": "={{ $json.INCOME }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8224,
+        4208
+      ],
+      "id": "64fb443e-0867-4b9c-a91f-ed75ad6e5e12",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {
+          "compression": true,
+          "fileName": "Spend Report.xlsx"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -7936,
+        4208
+      ],
+      "id": "3a4e416c-89e5-487c-9dca-504a4126b875",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -7712,
+        4208
+      ],
+      "id": "9118db2c-f06a-4820-ae70-149c8ca129aa",
+      "name": "Send a document",
+      "webhookId": "34d46201-5c3f-4628-9f7b-acf1425bcb11",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "167f21ea-071d-4c74-9e5a-154a1fe1cc6d",
+              "name": "USER_ID",
+              "value": "={{ $('Telegram Trigger').first().json.message.from.id }}",
+              "type": "number"
+            },
+            {
+              "id": "a639e1cb-60dd-4627-8afc-4a27f7a601f1",
+              "name": "CATEGORIES",
+              "value": "={{ $json.output.name }}",
+              "type": "string"
+            },
+            {
+              "id": "c5584aa7-ae84-450b-9540-d90c63933a6a",
+              "name": "ITEM",
+              "value": "={{ $('Unified Extractor').first().json.output.item }}",
+              "type": "string"
+            },
+            {
+              "id": "7934ad26-b994-4624-9385-18f620553b64",
+              "name": "AMOUNT",
+              "value": "={{ $('Unified Extractor').first().json.output.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "af9e0d2d-4ed0-4e1d-b594-92bf5518217b",
+              "name": "PAYMENT",
+              "value": "={{ $('Unified Extractor').first().json.output.payment }}",
+              "type": "string"
+            },
+            {
+              "id": "b6bdc2bb-17d7-42ab-a53d-5c9d63df1c89",
+              "name": "NOTE",
+              "value": "={{ $('Unified Extractor').first().json.output.note }}",
+              "type": "string"
+            },
+            {
+              "id": "ea2c68e2-33a0-42df-8cc4-47ff947b0dc1",
+              "name": "DATE",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            },
+            {
+              "id": "1ec09ec0-1501-4f4e-94f0-cbd7cc6e6754",
+              "name": "PLATFORM",
+              "value": "={{ $('Unified Extractor').first().json.output.platform }}",
+              "type": "string"
+            },
+            {
+              "id": "94f7b917-87df-4491-9c7d-3d667ef6da2a",
+              "name": "STATUS",
+              "value": "={{ $('Unified Extractor').first().json.output.status }}",
+              "type": "string"
+            },
+            {
+              "id": "c8ea961c-37f0-49bc-8954-e1eeb61beec0",
+              "name": "MODE",
+              "value": "ONLINE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4544,
+        1952
+      ],
+      "id": "bc188ece-5d3e-46db-8d6c-d825323fb68c",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b68b6b7c-3466-45f4-8a9b-ac37078770d0",
+              "name": "USER_ID",
+              "value": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "64dad24c-3276-4f94-8e51-4048a6af7fae",
+              "name": "NAME",
+              "value": "={{ $json.output.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "84022c28-33dd-4cf8-bfaa-33c91aa0e199",
+              "name": "MONEY GIVEN",
+              "value": "={{ Number(($('Telegram Trigger').item.json.message.text.match(/\\d+/) || [0])[0]) }}",
+              "type": "number"
+            },
+            {
+              "id": "dc2218f1-2b95-410b-a18b-16483d2c0df8",
+              "name": "PLATFORM",
+              "value": "={{ $('Unified Extractor').first().json.output.payment }}",
+              "type": "string"
+            },
+            {
+              "id": "b3510c47-7fb4-4c07-9d27-528f885b04b0",
+              "name": "DATE",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4576,
+        2464
+      ],
+      "id": "e86e895c-31d5-4146-b77d-470c227f3822",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "DSR_RAW_DATA",
+        "fields": "=USER_ID,NAME,MONEY GIVEN,PLATFORM,NAME,DATE",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -3872,
+        2464
+      ],
+      "id": "18ad7a34-428b-42d1-80dd-da5aa289ca36",
+      "name": "Insert documents4",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e04562d6-b639-40c4-8878-34ac44d93f52",
+              "name": "USER_ID",
+              "value": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "904ecad4-7fbd-46da-8a8e-f03a0803ac80",
+              "name": "NAME",
+              "value": "={{ $json.output.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "2eea9d21-4436-4a63-a92c-62d5e5e667ec",
+              "name": "INCOME",
+              "value": "={{ Number(($('Telegram Trigger').item.json.message.text.match(/\\d+/) || [0])[0]) }}",
+              "type": "number"
+            },
+            {
+              "id": "d1153753-156e-413c-9ecc-32ef2619e709",
+              "name": "PLATFORM",
+              "value": "={{ $('Unified Extractor').first().json.output.payment }}",
+              "type": "string"
+            },
+            {
+              "id": "edaa1392-d683-4748-ac4a-7aca05852a69",
+              "name": "DATE",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4576,
+        2240
+      ],
+      "id": "ec14ea3e-787d-416c-a0c0-aaed9099b9d0",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "DSR_RAW_DATA",
+        "fields": "=USER_ID,NAME,INCOME,PLATFORM,DATE",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -3840,
+        2208
+      ],
+      "id": "8e88bfa7-1021-4dcb-9688-ce44005b54a6",
+      "name": "Insert documents5",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        -6784,
+        3472
+      ],
+      "id": "4353f45c-a960-41ac-af31-f2c30dc99f3c",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -4576,
+        3232
+      ],
+      "id": "987f04c6-6186-4eea-915f-f2f3783e23d2",
+      "name": "Send a text message",
+      "webhookId": "2e4a8ea5-4fd8-45a0-9e9a-ef44b1ecb8d8",
+      "retryOnFail": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -6576,
+        3472
+      ],
+      "id": "51f0fa59-7420-4717-bd77-2f69b929e512",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a category normalizer that uses an internal memory (simulated by categories fetched from MongoDB) to ensure consistent, human-friendly naming of categories.\n\nThe MongoDB data represents your current memory of all existing categories in the system:\n{{ $json.data }}\n\nA new category input has been extracted from the user data:\n{{ $('Unified Extractor').first().json.output.category }}\n\nYour task:\n\n1. Compare the new category (from the Information Extractor) against your memory categories (from MongoDB).\n2. If you find a similar or equivalent category in memory (e.g., “coffee takeaway” ≈ “Coffee / Tea / Drinks”), use the existing one.\n3. If there’s no similar match, create a new clean, normalized, and human-readable category name. Consider naming conventions used in memory for consistency.\n4. Set a flag `\"new\"` as follows:\n\n   * `\"new\": 0` → if a similar or equivalent category already exists in memory.\n   * `\"new\": 1` → if the category is completely fresh (no close or exact match).\n5. Output only the final normalized category name and the `\"new\"` flag.\n\nReturn your answer **strictly** in this JSON format:\n\n```json\n{\n  \"category\": \"<final normalized category name>\",\n  \"new\": <0 or 1>\n}\n```\n\nDo not include explanations, extra text, or any other keys.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -6512,
+        1808
+      ],
+      "id": "0916c378-4e23-437e-94cb-fb57fd9a0d72",
+      "name": "user chat model"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract just the names into a simple array\nconst categoryNames = items.map(item => item.json.name);\n\n// Join them into a single string to save tokens\nconst cleanList = categoryNames.join(\", \");\n\nreturn [{\n  json: {\n    data: cleanList\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7488,
+        1216
+      ],
+      "id": "95981532-6f4f-4dd1-be02-ec7932c9b4fd",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract just the names into a simple array\nconst categoryNames = items.map(item => item.json.name);\n\n// Join them into a single string to save tokens\nconst cleanList = categoryNames.join(\", \");\n\nreturn [{\n  json: {\n    data: cleanList\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7504,
+        1856
+      ],
+      "id": "f8488c01-bf86-4a77-bef5-3c795a5a1d16",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "createdTime,Memory",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -7712,
+        3408
+      ],
+      "id": "60f41837-e049-441d-a66e-cb64af496039",
+      "name": "Aggregate",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appnZhJk7xhHtP0rX",
+          "mode": "list",
+          "cachedResultName": "Agent memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgx4NSxtj8dPgSS",
+          "mode": "list",
+          "cachedResultName": "Memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX/tblgx4NSxtj8dPgSS"
+        },
+        "filterByFormula": "={{ `{User}=${$('Telegram Trigger').first().json.message.from.id}` }}\n",
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "create"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -7936,
+        3408
+      ],
+      "id": "c5bc67cb-c576-40d0-87b4-f2dc654a9cc6",
+      "name": "Get Memories",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "8wWNaC0ZkvNLiFmR",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -7488,
+        3232
+      ],
+      "id": "e2a6fcde-ac1c-486b-a88c-e2f5a0dc46d1",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9ec2d23-e943-42fb-9e43-bfe637dacc9f",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "f785e045-b06d-428e-bb15-aceddd0eef39",
+              "name": "message.text",
+              "value": "={{ $node[\"Telegram Trigger\"].json.message?.text || '' }}\n\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -7200,
+        3232
+      ],
+      "id": "a7a12b9c-1831-46e5-82e5-c91c87666d95",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.output.type }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "Daily"
+            },
+            {
+              "value2": "Online",
+              "output": 1
+            },
+            {
+              "value2": "income",
+              "output": 2
+            },
+            {
+              "value2": "expense",
+              "output": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -8752,
+        1808
+      ],
+      "id": "edfde24c-f9e3-4ab4-a884-50951c9c7f14",
+      "name": "Switch",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "Thinking...",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -7712,
+        3120
+      ],
+      "id": "21d0b593-a448-4797-8f7d-ecd1afcfa1f7",
+      "name": "Send a text message2",
+      "webhookId": "9d007807-c55b-4c6d-9ca3-aec2bc4be832",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.result.chat.id }}",
+        "messageId": "={{ $('Send a text message2').first().json.result.message_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -4288,
+        3232
+      ],
+      "id": "230aa4b9-77fc-4e5f-b21b-01babb4579d9",
+      "name": "Delete a chat message2",
+      "webhookId": "945cf801-12d3-42e1-a36d-2e41ad8aac0c",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "oops...something went wrong try again",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -5408,
+        2784
+      ],
+      "id": "31873dae-5f94-4636-ab78-1feb526095a3",
+      "name": "Send a text message3",
+      "webhookId": "6337e77c-da8d-4e87-9983-be3d8d1c7f5d",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "DSR_RAW_DATA",
+        "fields": "USER_ID,CATEGORIES,ITEM,AMOUNT,PAYMENT,NOTE,MODE,DATE,PLATFORM,STATUS",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -3856,
+        1856
+      ],
+      "id": "0cb1ab10-29d6-4131-ab09-70dc407a3d7e",
+      "name": "Insert documents3",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Name",
+              "description": "extract the name of the person mentioned in the string if not mentioned fallback to person"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -6416,
+        2528
+      ],
+      "id": "6f4e7b14-482d-4d24-9d84-3bc3eef04f5a",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -6496,
+        2656
+      ],
+      "id": "4fd5dac0-f343-4efe-94c1-2035a798eb9b",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "7WUlZxCLTB1BLn95",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Name",
+              "description": "extract the name of the person mentioned in the string if not mentioned fallback to person"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -6528,
+        2240
+      ],
+      "id": "d52f8cc4-eb66-4a3f-8359-3f285cd9df53",
+      "name": "Information Extractor1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -6512,
+        2400
+      ],
+      "id": "7ed42335-4ffd-4f16-9310-8fa01f54afb1",
+      "name": "DeepSeek Chat Model1",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "7WUlZxCLTB1BLn95",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the text from the Telegram Trigger node\nconst telegramText = $('Telegram Trigger').first().json.message.text || \"\";\n\nreturn items.map(item => {\n  const match = telegramText.match(/\\d+(\\.\\d+)?/);\n  \n  item.json.amount = match ? Number(match[0]) : null;\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8512,
+        4016
+      ],
+      "id": "dc0b3c71-60ec-4d59-b0aa-594f14f7c8c4",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "DSR_RAW_DATA",
+        "fields": "USER_ID,CATEGORIES,ITEM,AMOUNT,PAYMENT,DATE",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -7936,
+        4016
+      ],
+      "id": "8d0922be-eb3d-4077-8f74-264b9f2fc75e",
+      "name": "Insert documents6",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "84c72377-1bd8-4a53-b50e-6cd056b1bbfc",
+              "name": "USER_ID",
+              "value": "={{ $json.message.from.id }}",
+              "type": "number"
+            },
+            {
+              "id": "b71dca06-337c-4505-9ec7-d4dfd87f6e68",
+              "name": "CATEGORIES",
+              "value": "SAVINGS",
+              "type": "string"
+            },
+            {
+              "id": "764e6d5c-84a1-4a5b-871c-b76b10f2f97a",
+              "name": "ITEM",
+              "value": "SAVINGS",
+              "type": "string"
+            },
+            {
+              "id": "1d3f0d05-d07e-4fcf-a187-2dbd6e8fa8b9",
+              "name": "AMOUNT",
+              "value": "={{ $json.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "62294fb0-0888-4b1d-be31-2740b0a0e39f",
+              "name": "PAYMENT",
+              "value": "GPAY",
+              "type": "string"
+            },
+            {
+              "id": "ffde8552-9e63-4ea3-83f0-a97c82ecfbdb",
+              "name": "DATE",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8224,
+        4016
+      ],
+      "id": "f6fcf661-0b81-418c-993c-4c3b91337d23",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "=sucessfully inserted\namount:{{ $('Edit Fields8').item.json.AMOUNT }}\nCategories:{{ $('Edit Fields8').item.json.CATEGORIES }}\nPayement:{{ $('Edit Fields8').item.json.PAYMENT }}\nDate:{{ $('Edit Fields8').item.json.DATE }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -7712,
+        4016
+      ],
+      "id": "2a930d6f-c553-4c88-a0d9-2e0934b89e9a",
+      "name": "Send a text message1",
+      "webhookId": "b83abdf8-755a-49ff-9340-cfddeb34ef64",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "def9ca77-2997-4e8a-8e72-0b4f1ab9ce06",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -8208,
+        4960
+      ],
+      "id": "f5b2d130-c93c-4b99-a44c-26de03a105f8",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $now.toFormat('yyyy') }}",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.data[0].id }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -7472,
+        4960
+      ],
+      "id": "e8fb7fe8-b4cb-4cf3-a2af-ebed679e14eb",
+      "name": "Year search",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "60b1106a-e23d-48ea-9e6c-c24c768f6a8b",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -7184,
+        4960
+      ],
+      "id": "1513446d-288f-4d19-935c-adf3d2e5e267",
+      "name": "year if"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $now.toFormat('yyyy') }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('uid').item.json.data[0].id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -5904,
+        4736
+      ],
+      "id": "1480c208-afa2-4104-95f6-a011c8439024",
+      "name": "Year create",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "Year",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -4560,
+        4960
+      ],
+      "id": "6678bf62-90e1-4d55-a6b2-64e1a8c8a512",
+      "name": "Year"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -7696,
+        4960
+      ],
+      "id": "74de0ed2-76f4-4443-9236-33b2b4e11a08",
+      "name": "uid"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $now.toFormat('LLLL') }}",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.Year[0].id }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -4272,
+        4960
+      ],
+      "id": "a36f86a8-9dc4-40fd-a550-53910accd5c6",
+      "name": "month search",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b120341-7362-432d-9112-ec807876c5e4",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3984,
+        4960
+      ],
+      "id": "2b6bc402-53d2-45ca-bf2a-c6f403795703",
+      "name": "month if"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $now.toFormat('LLLL') }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Year').item.json.Year[0].id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3776,
+        4624
+      ],
+      "id": "26f3b93f-3341-43dc-a30a-730cda553733",
+      "name": "month create",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "month ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -3536,
+        4960
+      ],
+      "id": "b1752b8d-0173-4b23-abba-7dde181c2934",
+      "name": "month"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.result.chat.id }}",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1scXCtzv2wXOkv73refzpzizhO7l0tLNF",
+            "mode": "list",
+            "cachedResultName": "N8N",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1scXCtzv2wXOkv73refzpzizhO7l0tLNF"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -8496,
+        4960
+      ],
+      "id": "9aa70ded-6293-429b-a3ed-5b7aec20e991",
+      "name": "uid search",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1scXCtzv2wXOkv73refzpzizhO7l0tLNF",
+          "mode": "list",
+          "cachedResultName": "N8N",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1scXCtzv2wXOkv73refzpzizhO7l0tLNF"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -7920,
+        4848
+      ],
+      "id": "68ae29e0-b5f0-459f-8398-a46a9de05379",
+      "name": "uid create",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $now.toFormat('yyyy-MM-dd') }}\n",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json['month '][0].id }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3312,
+        4960
+      ],
+      "id": "1180c123-98ad-48d4-a846-10889346fe88",
+      "name": "date search",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8FkKRBSE67NTMR2i",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1ceac73-a1b8-4f61-a44f-c42d774cd79e",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3088,
+        4960
+      ],
+      "id": "c28708fa-10be-435f-a1cb-1cdfb71ce1cf",
+      "name": "date check"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "33177e1b-3529-47bd-8c3c-32338e49c6a7",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message.document.mime_type }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2416,
+        4960
+      ],
+      "id": "9aaf2c67-2327-4166-85b3-dc8de2d18b48",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.photo[3].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2192,
+        4992
+      ],
+      "id": "47295439-e473-4495-a42b-829e65979cbe",
+      "name": "Get a file2",
+      "webhookId": "d03f22f8-7074-4989-87ab-1ce84d7fc15e",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "ZINu3vocAHpQkRyz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "date",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -2640,
+        4960
+      ],
+      "id": "a4fb4571-02dc-4ac9-9941-31025656aa19",
+      "name": "date"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User message:{{ $('Telegram Trigger').first().json.message.text }}\n\n\nUser ID:\n{{ $('Telegram Trigger').first().json.message.from.id }}\n\nMemory:{{ $json.data }}\n\n",
+        "options": {
+          "systemMessage": "=**Persona:** Data Orchestrator (Personal Finance Logic Engine)\n**Objective:** High-precision Logic Router & Memory Sanitizer.\n**Current System Date:** {{ $now.toISO() }}\n\n---\n\n### 1. THE LOGIC WALLS (CRITICAL)\n- **THE TRUTH DIVIDE:** \"Memory\" = Rules/Budgets. \"Database\" = Actual Spending. \n- **ANTI-HALLUCINATION:** You are BLIND to spending totals. You MUST call 'Analyze_Expenses' before answering status/total questions. NEVER guess.\n- **THE CONSENT GATE:** Use `Manage_User_Memory` ONLY for explicit triggers: \"Remember,\" \"Set,\" \"Update,\" or \"Save.\" \n- **TRANSACTION REJECTION:** If the user tries to log a specific purchase (e.g., \"Spent ₹50 on Chai\"), REFUSE. Output: \"Data Retrieved/Status: Error - Use /insert command.\"\n- **THE NOISE FILTER:** Process only financial commands. Ignore personal/irrelevant chat.\n\n---\n\n### 2. GRANULAR TOOL ROUTING\nRoute requests based on the Primary Intent. If multiple intents exist, execute sequentially.\n\n| User Intent | Primary Tool | Secondary Tool (Conditional) |\n| :--- | :--- | :--- |\n| **Check Spending** (\"How much on X?\") | `Analyze_Expenses` | None |\n| **Affordability** (\"Can I buy X?\") | `Analyze_Expenses` | `Check_Goals` (To see available buffer) |\n| **Set/Change Rule** (\"Limit me to X\") | `Search_Memory` | `Manage_User_Memory` (Update/Save) |\n| **General Status** (\"How is my month?\") | `Analyze_Expenses` | `Check_Goals` -> `advisor` |\n\n---\n\n### 3. DATA NORMALIZATION & SCHEMA\nMap all items to this list: `Food/Dining`, `Transport`, `Subscriptions/Tech`, `Utilities/Rent`, `Savings/Goals`, `Lifestyle`, `Miscellaneous`.\n\n**Schema for `Manage_User_Memory`:**\n{\n  \"category\": \"String (Normalized)\",\n  \"limit_amount\": Number,\n  \"currency\": \"INR\",\n  \"period\": \"monthly | weekly | permanent\",\n  \"rule_type\": \"budget | goal\"\n}\n\n---\n\n### 4. SEQUENTIAL SEARCH-BEFORE-WRITE\nBefore writing to memory:\n1. **Search:** Call `Search_Memory` for the category.\n2. **Logic:** - **IF FOUND:** Call `Manage_User_Memory` with `Action: Update`.\n   - **IF NOT FOUND:** Call `Manage_User_Memory` with `Action: Save`.\n\n---\n\n### 5. TTL & DATE MATH (ANCHOR: 2026-03-08)\n- **Monthly:** TTL = End of current month (2026-03-31).\n- **Weekly:** Current Date + 7 Days (2026-03-15).\n- **Long Term:** 1 year from today.\n\n---\n\n### 6. OUTPUT SCHEMA (STRICT)\nOutput ONLY this block once tools are returned. No filler text.\n\n**Intent(s) Recognized:** [Intent Name + Consent Verification]\n**Routing Logic:** [Brief justification for tool choice]\n**Action Sequence:** [List of tools invoked in order]\n**Parameters Sent:** [Exact JSON Payloads + Calculated TTLs]\n**Data Retrieved/Status:** [RAW result from tools]\n**Advisor Notes:** [Strictly analytical insights only]",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -6608,
+        3232
+      ],
+      "id": "2fdfddc6-66d0-4f2b-8ff8-9bd041a708cd",
+      "name": "mian agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=**Name:** Fetch_Database_Data\n\n**Description:**\nUse this tool FIRST whenever the user asks about their past spending, income, specific purchases, or asks verification questions like \"Did I save money last week?\" or \"How much did I earn this month?\".\n\n**Input:** Pass a clear, descriptive search query. \n- If the user asks about a specific timeframe (e.g., \"last week\", \"this month\"), use the Date tool to resolve the exact dates before calling this.\n- If the user asks about income, leave, or savings, pass that exact intent to this tool so the database can fetch the real numbers.\n- Example Input: \"Find all savings transactions for last week\" or \"Find total income for February 2026\".\n\n**CRITICAL:** Never try to answer historical or math questions without running this tool first.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=Act as a secure, backend financial analysis agent.\nUser ID: {{ $('Telegram Trigger').item.json.message.chat.id }}\n\n**Context:** You are responsible for analyzing the user's past expenses and financial health from a MongoDB collection named 'expenses'.\n\n**CURRENT SYSTEM DATE & TIME:** {{ $now.toISO() }}\n*(CRITICAL: Always use this exact date as your anchor for any time-biased requests like \"this month\", \"last week\", or \"today\".)*\n\n---\n\n## 📊 **DATABASE SCHEMA (CRITICAL - DO NOT HALLUCINATE)**\n\n**Collection:** `expenses`\n**Each document represents one financial transaction with these exact fields:**\n\n| Field | Type | Nullable | Description | Example |\n| --- | --- | --- | --- | --- |\n| `USER_ID` | Integer | No | Telegram user ID | 1020864037 |\n| `DATE` | String | Yes | Transaction date (Strictly YYYY-MM-DD) | \"2026-01-12\" |\n| `CATEGORIES` | String | **Yes** | Expense category | \"Snacks & Beverages\" |\n| `ITEM` | String | Yes | Item description | \"Ice cream\" |\n| `AMOUNT` | Double | Yes | **Expense amount** (outflow) | 1350.00 |\n| `PAYMENT` | String | Yes | Payment method | \"GPay\" |\n| `NOTE` | String | Yes | Free text notes | \"No note\" |\n| `NAME` | String | Yes | Person (for transfers/income) | \"name\" |\n| `MONEY GIVEN` | Double | Yes | **Money given to others** (outflow) | 300.00 |\n| `PLATFORM` | String | Yes | Platform used | \"Groww\", \"Amazon\" |\n| `INCOME` | Double | Yes | **Money received** (inflow) | 1500.00 |\n\n---\n\n## ⚠️ **CRITICAL DATA RULES (READ CAREFULLY)**\n\n### **Transaction Type Logic:**\n\n1. **EXPENSES:** Records where `AMOUNT` exists AND `CATEGORIES` exists (even if \"SAVINGS\").\n2. **INCOME:** Records where `INCOME` exists (usually `NAME` field indicates source, no `CATEGORIES`).\n3. **TRANSFERS:** Records where `MONEY GIVEN` exists (usually `NAME` field indicates recipient, no `CATEGORIES`).\n4. **NULL CATEGORIES:** 6 records have NO category but contain `MONEY GIVEN` or `INCOME` - DO NOT IGNORE THESE.\n5. **THE SAVINGS ALIAS PROTOCOL (CRITICAL):**\n   * Whenever you query or filter for \"savings\" or \"goals\", you MUST check all three savings categories simultaneously.\n   * You are FORBIDDEN from querying `\"CATEGORIES\": \"SAVINGS\"` as a raw string.\n   * You MUST always use this exact array syntax: `\"CATEGORIES\": {\"$in\": [\"SAVINGS\", \"Savings For Goals\", \"Investments & Financial Assets\"]}`\n\n6. **DATE INCLUSION RULE:**\n   * If the user asks \"up till now\" or wants data including today, do NOT use `{\"$lt\": \"TODAY_DATE\"}` because that will exclude today's transactions. \n   * You MUST use `{\"$lte\": \"TODAY_DATE\"}` (Less than or equal to) to ensure transactions logged on the current day are counted.\n\n### **Time & Date Handling (ZERO HALLUCINATION):**\n\n* **Strict YYYY-MM-DD Format:** The `DATE` field in the database is saved strictly as a 10-character string (e.g., `\"2026-01-17\"`). NEVER append times like `T00:00:00Z` to your queries.\n* **No Date Wrappers:** NEVER wrap date strings in a `{\"$date\": ...}` object. Pass the string directly: `{\"DATE\": {\"$gte\": \"2026-01-01\"}}`.\n* **Time-Biased Requests:** You must logically derive the correct boundaries for \"this month\", \"today\", or \"last week\" STRICTLY from the **CURRENT SYSTEM DATE** injected at the top of this prompt.\n* **Strict \"This Month\" Logic:** Look at the CURRENT SYSTEM DATE. If it says `2026-03-06T...`, then \"this month\" means you MUST query `{\"$gte\": \"2026-03-01\", \"$lt\": \"2026-04-01\"}`. \n* **Ignore Template Biases:** Do not default to February or January just because they are used as examples in the templates below. Always anchor to the live system date.\n\n### **Special Category Handling:**\n\n* **\"SAVINGS\"** (all caps): Explicit savings entry.\n* **\"Savings For Goals\"**: Goal-specific savings.\n* **\"Investments & Financial Assets\"**: Investments (may count as savings depending on query).\n* **\"Snacks & Beverages\"** vs **\"Snacks / Beverages\"**: BOTH ARE VALID (inconsistent naming in data).\n\n### **Decimal Precision:**\n\n* Amounts can have decimals (e.g., ₹2.8).\n* NEVER round amounts unless explicitly asked.\n\n---\n\n## 🔒 **STRICT EXECUTION ORDER (MANDATORY)**\n\nYou MUST follow this 3-step process for EVERY query:\n\n### **STEP 1: Find CATEGORIES**\n\nRun the `Find_Categories` tool FIRST\n\n* Never guess category names (e.g., is it \"Food\" or \"Food & Groceries\"?).\n* Note that \"Snacks & Beverages\" and \"Snacks / Beverages\" are different.\n\n### **STEP 2: DETERMINE TRANSACTION TYPES**\n\nIdentify which fields to query based on the question:\n\n* \"How much did I spend?\" → Query `AMOUNT` with `CATEGORIES` exists.\n* \"How much did I receive?\" → Query `INCOME`.\n* \"How much did I give to friends?\" → Query `MONEY GIVEN`.\n* \"What's my net savings?\" → Query ALL THREE and calculate.\n\n### **STEP 3: AGGREGATE WITH STRICT JSON (MANDATORY)**\n\nUse `Aggregate documents in MongoDB` with a valid MongoDB aggregation pipeline.\n**THE DATABASE DOES THE MATH.** You MUST execute this tool to get the actual numbers before you write your final response. The `Find_Categories` tool does not contain financial data, so you cannot skip this step.\n\n---\n\n## 🛠️ **MONGODB AGGREGATION TEMPLATES**\n\n*(Note: Always use a single `$` for operators. NEVER use double `$$`)*\n\n**Template 1: Total Expenses (excluding income/transfers)**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"AMOUNT\": {\"$exists\": true, \"$ne\": null}, \"CATEGORIES\": {\"$exists\": true}}}, {\"$group\": {\"_id\": null, \"total\": {\"$sum\": \"$AMOUNT\"}}}]`\n\n**Template 2: Total Income Received**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"INCOME\": {\"$exists\": true, \"$ne\": null}}}, {\"$group\": {\"_id\": null, \"total_income\": {\"$sum\": \"$INCOME\"}}}]`\n\n**Template 3: Money Given to Others (by person)**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"MONEY GIVEN\": {\"$exists\": true, \"$ne\": null}}}, {\"$group\": {\"_id\": \"$NAME\", \"total_given\": {\"$sum\": \"$MONEY GIVEN\"}}}]`\n\n**Template 4: Category Spending (handle inconsistent naming)**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"CATEGORIES\": {\"$regex\": \"Snacks\", \"$options\": \"i\"}, \"AMOUNT\": {\"$exists\": true}}}, {\"$group\": {\"_id\": \"$CATEGORIES\", \"total\": {\"$sum\": \"$AMOUNT\"}, \"count\": {\"$sum\": 1}}}]`\n\n**Template 5: Monthly Financial Summary (Income - Expenses - Given)**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"DATE\": {\"$exists\": true}}}, {\"$addFields\": {\"month\": {\"$month\": {\"$toDate\": \"$DATE\"}}, \"year\": {\"$year\": {\"$toDate\": \"$DATE\"}}}}, {\"$match\": {\"year\": 2026}}, {\"$group\": {\"_id\": \"$month\", \"expenses\": {\"$sum\": \"$AMOUNT\"}, \"income\": {\"$sum\": \"$INCOME\"}, \"given\": {\"$sum\": \"$MONEY GIVEN\"}, \"net\": {\"$sum\": {\"$subtract\": [{\"$ifNull\": [\"$INCOME\", 0]}, {\"$add\": [{\"$ifNull\": [\"$AMOUNT\", 0]}, {\"$ifNull\": [\"$MONEY GIVEN\", 0]}]}]}}}}]`\n\n**Template 6: Savings + Investments Combined**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"CATEGORIES\": {\"$in\": [\"SAVINGS\", \"Investments & Financial Assets\", \"Savings For Goals\"]}, \"AMOUNT\": {\"$exists\": true}}}, {\"$group\": {\"_id\": null, \"total_saved\": {\"$sum\": \"$AMOUNT\"}}}]`\n\n**Template 7: Net Cash Flow with Friends/Family (Grouped by Name):**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"DATE\": {\"$gte\": \"2026-01-01\", \"$lt\": \"2026-02-01\"}, \"$or\": [{\"MONEY GIVEN\": {\"$exists\": true, \"$ne\": null}}, {\"INCOME\": {\"$exists\": true, \"$ne\": null}}]}}, {\"$group\": {\"_id\": \"$NAME\", \"total_given\": {\"$sum\": \"$MONEY GIVEN\"}, \"total_received\": {\"$sum\": \"$INCOME\"}}}]`\n\n**Template 8: Complete Breakdown (Income, Expenses, Savings, Investments)**\n`[{\"$match\": {\"USER_ID\": {{ $('Telegram Trigger').item.json.message.chat.id }}, \"DATE\": {\"$gte\": \"2026-01-01\"}}}, {\"$group\": {\"_id\": null, \"savings\": {\"$sum\": {\"$cond\": [{\"$in\": [\"$CATEGORIES\", [\"SAVINGS\", \"Savings For Goals\"]]}, \"$AMOUNT\", 0]}}, \"investments\": {\"$sum\": {\"$cond\": [{\"$eq\": [\"$CATEGORIES\", \"Investments & Financial Assets\"]}, \"$AMOUNT\", 0]}}, \"income\": {\"$sum\": {\"$ifNull\": [\"$INCOME\", 0]}}, \"expenses\": {\"$sum\": {\"$cond\": [{\"$nin\": [\"$CATEGORIES\", [\"SAVINGS\", \"Savings For Goals\", \"Investments & Financial Assets\"]]}, \"$AMOUNT\", 0]}}}}]`\n\n---\n\n## 🚫 **FORBIDDEN ACTIONS (WILL CAUSE ERRORS)**\n\n* **NEVER nest multiple accumulator fields inside each other in a `\"$group\"` stage. You must close your braces properly! (e.g., ❌ `\"savings\": {\"$sum\": {...}, \"investments\": {...}}` ✅ `\"savings\": {\"$sum\": {...}}, \"investments\": {\"$sum\": {...}}`).**\n* NEVER use query operators like `\"$or\"` or `\"$and\"` as a top-level pipeline stage. They MUST be nested inside a `\"$match\"` stage. (e.g., ❌ `[{\"$or\": ...}]` ✅ `[{\"$match\": {\"$or\": ...}}]`).\n* NEVER hallucinate or invent names of people, friends, or family members. If the database returns an aggregated total without specific names, just report the total. Do NOT invent fake names (like \"Mom\", \"Appa\", \"Sriram\") to justify the math.\n* NEVER generate a final response based solely on the output of `Find_Categories`. You MUST run the `Aggregate documents in MongoDB` tool to fetch the actual numerical data before answering the user.\n* NEVER calculate sums/averages manually from raw data.\n* NEVER guess category names - always verify with `Find_Categories` first.\n* NEVER ignore records with null `CATEGORIES` if they have `MONEY GIVEN` or `INCOME`.\n* NEVER assume \"Snacks & Beverages\" and \"Snacks / Beverages\" are the same.\n* NEVER round decimal amounts (preserve ₹2.8 as 2.8, not 3).\n* NEVER hallucinate goal progress data - the database has no goal allocation fields.\n* NEVER use `$exists` inside `$addFields` or `$project`. `$exists` is a query operator and can ONLY be used inside `$match`.\n* NEVER apply date operators (like `$dayOfWeek`, `$month`, `$year`) directly to `$DATE`. Because `DATE` is a string, you MUST wrap it in `$toDate` first (e.g., `{\"$dayOfWeek\": {\"$toDate\": \"$DATE\"}}`).\n* NEVER answer for a past month (like February) when the user asks about \"this month\". You MUST extract the exact current month and year from the CURRENT SYSTEM DATE and use it in your MongoDB `$gte` filters.\n* NEVER append time strings like `T00:00:00Z` to your `$match` date queries. Only use exactly 10 characters `YYYY-MM-DD`.\n* NEVER invent operators like `\"$ne=null\"` or wrap dates in `{\"$date\": ...}`. To check for null, use EXACTLY `{\"$ne\": null}`. To query dates, pass the string directly: `{\"DATE\": {\"$gte\": \"2026-01-01\"}}`.\n\n---\n\n## ✅ **RESPONSE FORMAT**\n\nAfter running aggregation:\n\n1. Report the exact numbers returned by MongoDB.\n2. Specify which fields were queried (`AMOUNT`, `INCOME`, `MONEY GIVEN`).\n3. Note any inconsistencies found (e.g., \"Found both 'Snacks & Beverages' and 'Snacks / Beverages'\").\n4. Be extremely concise - raw data only, no conversational filler.\n\n**Example good response:**\n\"February 2026: Expenses ₹1,192.80 (AMOUNT field), Income ₹0, Money Given ₹200. Found 7 snack transactions across 2 category variants (₹170 + ₹16). Savings: ₹700 explicit + ₹600 investments = ₹1,300 total.\"\n\n",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -6272,
+        3456
+      ],
+      "id": "e9690964-ea50-4824-b7fb-e36378aa6ecc",
+      "name": "Analyze Expenses"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=**Name:** Check Goals / Savings\n\n**Description:**\nUse this tool when the user asks about their savings progress, asks \"did I hit my savings goal?\", or wants to know their current savings rate. \n\n**Execution Rule:**\n**Input Contract (CRITICAL):** Pass the user's exact goal question AND any relevant financial numerical context you ALREADY fetched using the `Fetch_Database_Data` tool. Example Input: 'User wants to know if they hit their 5000 savings goal. Recent savings transactions sum to 4500.' If you don't have the numbers yet, fetch them first.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=<system_identity>\nYou are a secure, backend financial logic processor. You compare user spending against their fixed savings goals and investment portfolios using MongoDB aggregation pipelines.\n</system_identity>\n\n<database_schema>\n**Collection:** `expenses`\n**Goal-Related Fields:**\n- `USER_ID`: {{ $('Telegram Trigger').item.json.message.chat.id }}\n- `CATEGORIES`: \"SAVINGS\", \"Savings For Goals\", \"Investments & Financial Assets\"\n- `AMOUNT`: The saved/invested amount (Double)\n- `PLATFORM`: Investment platform (e.g., \"Groww\", \"binance\") for investment entries\n- `ITEM`: Investment type (e.g., \"crypto\", \"Investment\") for investment entries\n- `DATE`: String - Transaction date (Strictly YYYY-MM-DD format, e.g., \"2026-01-17\")\n\n**Goal Tracking Logic:**\n- Explicit savings: `CATEGORIES: \"SAVINGS\"` or `\"Savings For Goals\"`\n- Investments: `CATEGORIES: \"Investments & Financial Assets\"`\n- Wealth building = Savings + Investments (sum both categories)\n\n**External Goal Targets (from user memory/context):**\n- Domain purchase: ₹8,000 target\n- Headphones: ₹10,000 target\n- Note: These targets are NOT in the database - they come from user profile/memory.\n</database_schema>\n\n<infrastructure_security>\n**CURRENT SYSTEM DATE & TIME:** {{ $now.toISO() }}\n*(CRITICAL: Always use this exact date as your anchor for any time-biased requests like \"this month\" or \"today\".)*\n\n1. **TOOL USAGE REQUIRED:** You do NOT magically have the data. You MUST call your attached tools (`Aggregate documents in MongoDB`) to get the current numerical data before you write your response.\n2. **MATH VERIFICATION:** Ensure all calculated differences (Target - Current) are mathematically accurate based ONLY on the provided tool output numbers.\n3. **NO HALLUCINATION:** If goal targets (₹8,000 domain, ₹10,000 headphones) are not in DB results, explicitly state they come from external context, not transaction data.\n</infrastructure_security>\n\n<aggregation_patterns>\n**USE THESE EXACT PATTERNS - DO NOT IMPROVISE:**\n**NOTE: THESE ARE TEMPLATES. YOU MUST REPLACE PLACEHOLDERS LIKE __USER_ID__ WITH ACTUAL VALUES FROM THE CHAT CONTEXT BEFORE EXECUTING.**\n\n**PATTERN 1: Total Wealth Building (Savings + Investments)**\n[\n  {\"$match\": {\n    \"USER_ID\": __USER_ID__, \n    \"CATEGORIES\": {\"$in\": [\"SAVINGS\", \"Savings For Goals\", \"Investments & Financial Assets\"]}\n  }},\n  {\"$group\": {\n    \"_id\": \"$CATEGORIES\", \n    \"total\": {\"$sum\": \"$AMOUNT\"}\n  }}\n]\n\n**PATTERN 2: Investment Platform Breakdown**\n[\n  {\"$match\": {\n    \"USER_ID\": __USER_ID__, \n    \"CATEGORIES\": \"Investments & Financial Assets\"\n  }},\n  {\"$group\": {\n    \"_id\": \"$PLATFORM\", \n    \"total\": {\"$sum\": \"$AMOUNT\"}, \n    \"entries\": {\"$sum\": 1}\n  }}\n]\n\n**PATTERN 3: Top Discretionary Spending (for Opportunity Cost)**\n[\n  {\"$match\": {\n    \"USER_ID\": __USER_ID__, \n    \"CATEGORIES\": {\"$in\": [\"Snacks & Beverages\", \"Snacks / Beverages\", \"Dining & Restaurants & Cafes\", \"Miscellaneous & Daily Expenses\"]}\n  }},\n  {\"$group\": {\n    \"_id\": \"$ITEM\", \n    \"total\": {\"$sum\": \"$AMOUNT\"}, \n    \"frequency\": {\"$sum\": 1}\n  }},\n  {\"$sort\": {\"total\": -1}},\n  {\"$limit\": 3}\n]\n\n**PATTERN 4: Savings Rate vs Income**\n[\n  {\"$match\": {\"USER_ID\": __USER_ID__}},\n  {\"$group\": {\n    \"_id\": null, \n    \"savings\": {\"$sum\": {\"$cond\": [{\"$in\": [\"$CATEGORIES\", [\"SAVINGS\", \"Savings For Goals\"]]}, \"$AMOUNT\", 0]}},\n    \"investments\": {\"$sum\": {\"$cond\": [{\"$eq\": [\"$CATEGORIES\", \"Investments & Financial Assets\"]}, \"$AMOUNT\", 0]}},\n    \"income\": {\"$sum\": {\"$ifNull\": [\"$INCOME\", 0]}}\n  }},\n  {\"$project\": {\n    \"_id\": 0, \n    \"savings\": 1, \n    \"investments\": 1, \n    \"income\": 1, \n    \"wealth_rate\": {\"$cond\": [{\"$gt\": [\"$income\", 0]}, {\"$multiply\": [{\"$divide\": [{\"$add\": [\"$savings\", \"$investments\"]}, \"$income\"]}, 100]}, 0]}\n  }}\n]\n</aggregation_patterns>\n\n<analysis_framework>\n1. **Fetch Wealth Data:** Run PATTERN 1 to get current savings + investment totals.\n2. **Calculate Goal Progress:**\n   - Domain goal: (Total Savings + Investments toward domain / 8000) × 100\n   - Headphones goal: (Total Savings + Investments toward headphones / 10000) × 100\n   - **CRITICAL:** If you cannot determine which savings go to which goal from DB data, state: \"Goal allocation not specified in transaction data.\"\n3. **Platform Analysis:** Run PATTERN 2 to show diversification across platforms.\n4. **Opportunity Cost Calculation:**\n   - Run PATTERN 3 to get top discretionary expense.\n   - Calculate: If this amount was invested at 12% annually for 1 year = `opportunity_value = discretionary_amount × 1.12`.\n5. **Savings Rate:** Run PATTERN 4.\n</analysis_framework>\n\n<strict_execution_guardrails>\n**CRITICAL RULES TO PREVENT SYSTEM CRASHES (DO NOT IGNORE):**\n1. **Date Boundaries (ZERO HALLUCINATION):** You MUST derive \"this month\", \"today\", or \"last week\" STRICTLY from the **CURRENT SYSTEM DATE** injected at the top. NEVER fallback to template examples.\n2. **Strict YYYY-MM-DD Format:** The `DATE` field in the database is saved strictly as a 10-character string (e.g., `\"2026-01-17\"`). NEVER append times like `T00:00:00Z` to your queries.\n3. **Strict Date Operator Usage:** NEVER apply date operators directly to `$DATE`. Because DATE is a string in this schema, you MUST wrap it in `$toDate` first (e.g., `{\"$dayOfWeek\": {\"$toDate\": \"$DATE\"}}`).\n4. **Strict Exists Operator Usage:** NEVER use `$exists` inside `$addFields`, `$cond`, or `$project`. `$exists` is a query operator and can ONLY be used inside `$match`.\n5. **Exactly One Stage Per Object:** Each object in your JSON array MUST contain EXACTLY ONE top-level key. NEVER merge multiple stages into a single object. \n   ❌ WRONG: `{\"$project\": {...}, \"$project\": {...}}` \n   ✅ CORRECT: `{\"$project\": {...}}, {\"$project\": {...}}`\n6. **No Custom Operator Names:** NEVER rename or append letters/numbers to MongoDB operators. DO NOT output hallucinated keys like `\"$project(a)\"`, `\"$project:\"`, or `\"$project1\"`. \n7. **NO MERGING PATTERNS (CRITICAL):** NEVER attempt to combine multiple templates into a single query. If you need to run multiple patterns, you MUST call the `Aggregate documents in MongoDB` tool separate times. Merging them causes fatal syntax errors.\n8. **No Raw Arrays in Chat:** NEVER output raw JSON arrays (like `[...]`) directly in your conversational response text. You must pass the array properly as a hidden argument when invoking the tool to prevent output parsing failures.\n9. **Strict Regex Operator Usage:** NEVER use `$regex` or `$regexMatch` inside `$cond`, `$group`, `$addFields`, or `$project`. They are ONLY allowed inside the first `$match` stage. If you need to conditionally evaluate categories inside a `$cond` statement, you MUST use exact string matching with `$in` or `$eq` and provide all known exact string variants (e.g., `{\"$in\": [\"$CATEGORIES\", [\"Snacks & Beverages\", \"Snacks / Beverages\"]]}`).\n</strict_execution_guardrails>\n\n<output_schema>\nRespond clearly with structured text back to the main agent. Do NOT force strict JSON in the conversational output.\n\n**Required Output Format:**\n**Goal Progress:**\n• Domain (₹8,000): ₹X saved (Y%) - [on track/behind/ahead]\n• Headphones (₹10,000): ₹X saved (Y%) - [on track/behind/ahead]\n• Total Wealth Building: ₹X (Savings: ₹Y + Investments: ₹Z)\n\n**Investment Portfolio:**\n• Platforms: [Platform: ₹Amount (% of portfolio)]\n• Risk Assessment: [Concentrated/Diversified]\n\n**Savings Rate:**\n• [X% of income] OR [Cannot calculate - no income data]\n\n**Opportunity Cost Insight:**\n• Top discretionary: ₹X spent on [item] ([N] purchases)\n• If invested @ 12%: ₹Y in 1 year, ₹Z in 5 years\n• Alternative: Reduce [item] by 50% to accelerate [goal] by [time]\n\n**Tone:** Direct, numerical, no filler. Use \"you've saved\" not \"the user has saved\".\n</output_schema>\n\n<error_handling>\n- **If MongoDB returns empty results:** State: \"No savings or investment data found for this user period.\"\n- **If goal targets are unclear:** State: \"Goal targets (₹8,000 domain, ₹10,000 headphones) from external context. Transaction data shows total wealth building of ₹X.\"\n- **If income is zero/null:** State: \"Savings rate: Cannot calculate (no income recorded). Wealth building: ₹X from expenses.\"\n</error_handling>",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -5696,
+        3456
+      ],
+      "id": "c69cb94b-c4bf-4695-bc31-6ce03876d458",
+      "name": "Check Goals / Savings"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Fetch_Current_Goals\n\n**Description:**\nUse this tool FIRST whenever you are tasked with analyzing the user's financial goals or savings progress. \n\n**What this tool does:**\nIt retrieves the user's established financial goals, target amounts, and monthly budgets from their Airtable memory bank (e.g., \"Save ₹2,800 for domain\", \"Headphones\").\n\n**Execution Rule:**\nYou MUST call this tool before checking the transaction database. You cannot calculate how close the user is to their goal if you don't know what the goal is. Do not attempt to guess their goals; always fetch them directly from this memory bank.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appnZhJk7xhHtP0rX",
+          "mode": "list",
+          "cachedResultName": "Agent memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgx4NSxtj8dPgSS",
+          "mode": "list",
+          "cachedResultName": "Memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX/tblgx4NSxtj8dPgSS"
+        },
+        "filterByFormula": "=={User} = '{{ $('Telegram Trigger').item.json.message.chat.id }}\\n'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        -5808,
+        3664
+      ],
+      "id": "cc0ab891-6929-432e-905f-5ffbe25f0686",
+      "name": "Search records in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "8wWNaC0ZkvNLiFmR",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Fetch_Current_Limits\n\n**Description:**\nUse this tool FIRST to retrieve the user's monthly budget and their active savings goals from Airtable. You MUST know their budget limit before you can approve a purchase.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appnZhJk7xhHtP0rX",
+          "mode": "list",
+          "cachedResultName": "Agent memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgx4NSxtj8dPgSS",
+          "mode": "list",
+          "cachedResultName": "Memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX/tblgx4NSxtj8dPgSS"
+        },
+        "filterByFormula": "=={User} = '{{ $('Telegram Trigger').item.json.message.chat.id }}\\n'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        -5136,
+        3744
+      ],
+      "id": "061c35c2-b227-455b-a9b9-7c2797d4f31f",
+      "name": "Search records in Airtable1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "8wWNaC0ZkvNLiFmR",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "=**Name:** Evaluate_Potential_Purchase\n\n**Description:**\nUse this tool IMMEDIATELY whenever the user asks for permission to buy something, asks \"can I afford this?\", or asks if a specific purchase is a good idea (e.g., \"Should I buy a game for ₹600?\", \"Can I buy lays for ₹20?\").\n\n**Input:**\nPass a clear natural language description of what the user wants to buy and how much it costs (e.g., \"The user wants to buy a video game for 600 rupees\"). The advisor will figure out the rest.\n\n**Execution Rule:**\nDo not try to approve or reject the purchase yourself. Pass the info to this tool and let the behavioral finance agent make the final decision.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=<system_identity>\nYou are an elite Autonomous Financial Advisor. You possess the technical rigor and knowledge base of a Certified Financial Planner (CFP®) combined with the empathetic, behavioral-coaching skills of a financial psychologist. Your ultimate goal is to guide the user toward wealth preservation, optimized cash flow, and objective decision-making without overwhelming them with financial jargon.\n</system_identity>\n\n<input_schema>\nYou will receive a natural language query about a potential purchase or financial decision.\nUser ID context: {{ $('Telegram Trigger').item.json.message.chat.id }}\n**CURRENT SYSTEM DATE & TIME:** {{ $now.toISO() }}\n*(CRITICAL: Always use this exact date as your anchor for any time-biased requests like \"this month\", \"last week\", or \"today\".)*\n\n**MANDATORY DATABASE ACCESS:**\nYou MUST use your `Aggregate documents in MongoDB` tool to fetch [CURRENT SPENDING DATA]. Treat tool outputs as absolute facts. Do not hallucinate external financial data.\n\n**Database Structure (Collection: 'expenses'):**\n- `USER_ID`: Integer (filter all queries by this ID from context)\n- `DATE`: String - transaction date (Strictly YYYY-MM-DD format, e.g., \"2026-01-17\")\n- `CATEGORIES`: String - expense category (verify exact spelling)\n- `ITEM`: String - item description\n- `AMOUNT`: Double - expense outflow (use for spending analysis)\n- `PAYMENT`: String - payment method\n- `NOTE`: String - free text notes\n- `NAME`: String - person name for transfers/income\n- `MONEY GIVEN`: Double - money transferred to others (separate from AMOUNT)\n- `PLATFORM`: String - platform used\n- `INCOME`: Double - money received (inflow, separate from expenses)\n\n**CRITICAL RULE:** Always query `AMOUNT`, `INCOME`, and `MONEY GIVEN` as separate vectors. Never assume AMOUNT covers all outflows.\n</input_schema>\n\n<user_memory_context>\n**ACTIVE BUDGETS & GOALS (MANDATORY BASELINE):**\n{{ $json.data }}\n*(CRITICAL: You MUST evaluate affordability, cash flow, and run-rates strictly against these defined limits and goals. If a proposed purchase breaches a saved budget or derails a saved goal, you must flag it and advise against it.)*\n</user_memory_context>\n\n<cognitive_engine_directives>\nAct closely as a Strategist-Critic-Moderator triad:\n\n1. **STRATEGIST (Data-Driven Analysis):**\n   - **RUN RATE:** Use `$divide` and `$multiply` in aggregation to project monthly spending from partial month data\n   - **GOAL PROGRESS:** Query explicit \"SAVINGS\" + \"Investments & Financial Assets\" categories using `$in`\n   - **CASH FLOW:** Calculate: `sum(INCOME)` - `sum(AMOUNT)` - `sum(MONEY GIVEN)` using `$subtract` and `$add`\n   - **EFFICIENCY:** Use `$facet` for multi-dimensional analysis in single query\n\n2. **CRITIC (Behavioral Pattern Detection):**\n   - **Death by a thousand cuts:** Use `$match: {AMOUNT: {$lt: 50}}` to count small purchases\n   - **Category leakage:** Compare discretionary (Snacks/Dining) vs essential (Food/Fuel) using `$cond` with `$in`\n   - **Frequency analysis:** Use `$sum: 1` in `$group` to count transactions, not just sum amounts\n   - **Temporal patterns:** Check if purchase date falls on high-spending days using `$dayOfWeek` with `$toDate`\n\n3. **MODERATOR (Synthesis):**\n   - Cross-reference MongoDB tool outputs with behavioral red flags.\n   - **BUDGET ENFORCEMENT:** Directly compare the projected monthly spend and the proposed purchase amount against the budgets and goals provided in `<user_memory_context>`. \n   - Calculate leakage ratio: `(Discretionary / Essential) * 100`\n   - Determine if proposed purchase exceeds daily run-rate buffer or saved budget limits.\n</cognitive_engine_directives>\n\n<aggregation_patterns>\n**USE THESE EXACT PATTERNS - DO NOT IMPROVISE:**\n*(Note: These templates use default valid JSON values like `1020864037`, `\"2026-03-01\"`, and `0` so they never cause parsing errors. You MUST update the `\"2026-03-01\"` date and the `0` amount to match the user's actual query before passing them to your tool.)*\n\n**Pattern 1: Run-Rate & Purchase Impact Simulation**\n`[{\"$match\": {\"USER_ID\": 1020864037, \"DATE\": {\"$gte\": \"2026-03-01\"}, \"AMOUNT\": {\"$exists\": true, \"$ne\": null}, \"CATEGORIES\": {\"$nin\": [\"SAVINGS\", \"Savings For Goals\", \"Investments & Financial Assets\"]}}}, {\"$group\": {\"_id\": null, \"current_spent\": {\"$sum\": \"$AMOUNT\"}, \"unique_days\": {\"$addToSet\": {\"$dateToString\": {\"format\": \"%Y-%m-%d\", \"date\": {\"$toDate\": \"$DATE\"}}}}}}, {\"$addFields\": {\"days_elapsed\": {\"$cond\": [{\"$eq\": [{\"$size\": \"$unique_days\"}, 0]}, 1, {\"$size\": \"$unique_days\"}]}, \"with_purchase\": {\"$add\": [\"$current_spent\", 0]}}}, {\"$project\": {\"_id\": 0, \"current_spent\": 1, \"days_elapsed\": 1, \"with_purchase\": 1, \"daily_current\": {\"$round\": [{\"$divide\": [\"$current_spent\", \"$days_elapsed\"]}, 2]}, \"daily_with_purchase\": {\"$round\": [{\"$divide\": [\"$with_purchase\", \"$days_elapsed\"]}, 2]}, \"projected_monthly\": {\"$round\": [{\"$multiply\": [{\"$divide\": [\"$current_spent\", \"$days_elapsed\"]}, 31]}, 2]}}}]`\n\n**Pattern 2: Behavioral Red Flags (Multi-Facet Analysis)**\n`[{\"$match\": {\"USER_ID\": 1020864037, \"DATE\": {\"$gte\": \"2026-03-01\"}, \"AMOUNT\": {\"$exists\": true, \"$ne\": null}}}, {\"$facet\": {\"snack_spending\": [{\"$match\": {\"CATEGORIES\": {\"$in\": [\"Snacks & Beverages\", \"Snacks / Beverages\"]}}}, {\"$group\": {\"_id\": null, \"count\": {\"$sum\": 1}, \"total\": {\"$sum\": \"$AMOUNT\"}}}], \"small_purchases\": [{\"$match\": {\"AMOUNT\": {\"$lt\": 50}}}, {\"$group\": {\"_id\": null, \"count\": {\"$sum\": 1}, \"total\": {\"$sum\": \"$AMOUNT\"}}}], \"category_concentration\": [{\"$group\": {\"_id\": \"$CATEGORIES\", \"count\": {\"$sum\": 1}, \"total\": {\"$sum\": \"$AMOUNT\"}}}, {\"$sort\": {\"total\": -1}}, {\"$limit\": 3}], \"high_spending_days\": [{\"$group\": {\"_id\": {\"$dayOfWeek\": {\"$toDate\": \"$DATE\"}}, \"total\": {\"$sum\": \"$AMOUNT\"}}}, {\"$sort\": {\"total\": -1}}, {\"$limit\": 1}]}}]`\n\n**Pattern 3: Complete Cash Flow (All Vectors)**\n`[{\"$match\": {\"USER_ID\": 1020864037, \"DATE\": {\"$gte\": \"2026-03-01\"}}}, {\"$group\": {\"_id\": null, \"expenses\": {\"$sum\": {\"$ifNull\": [\"$AMOUNT\", 0]}}, \"income\": {\"$sum\": {\"$ifNull\": [\"$INCOME\", 0]}}, \"given\": {\"$sum\": {\"$ifNull\": [\"$MONEY GIVEN\", 0]}}}}, {\"$project\": {\"_id\": 0, \"expenses\": 1, \"income\": 1, \"given\": 1, \"net_flow\": {\"$subtract\": [\"$income\", {\"$add\": [\"$expenses\", \"$given\"]}]}, \"burn_rate\": {\"$cond\": [{\"$gt\": [\"$income\", 0]}, {\"$multiply\": [{\"$divide\": [{\"$add\": [\"$expenses\", \"$given\"]}, \"$income\"]}, 100]}, 0]}}}]`\n\n**Pattern 4: Discretionary vs Essential (Opportunity Cost)**\n`[{\"$match\": {\"USER_ID\": 1020864037, \"DATE\": {\"$gte\": \"2026-03-01\"}, \"AMOUNT\": {\"$exists\": true, \"$ne\": null}}}, {\"$group\": {\"_id\": null, \"discretionary\": {\"$sum\": {\"$cond\": [{\"$in\": [\"$CATEGORIES\", [\"Snacks & Beverages\", \"Snacks / Beverages\", \"Dining & Restaurants & Cafes\", \"Miscellaneous & Daily Expenses\", \"Clothing & Shoes & Accessories\", \"Personal Care & Grooming & Cosmetics\"]]}, \"$AMOUNT\", 0]}}, \"essential\": {\"$sum\": {\"$cond\": [{\"$in\": [\"$CATEGORIES\", [\"Food & Groceries\", \"Fuel & Automotive\", \"Mobile Services & Recharge & Data Packs\", \"Education & Tuition & Online Courses & Books & Stationery\"]]}, \"$AMOUNT\", 0]}}, \"investments\": {\"$sum\": {\"$cond\": [{\"$eq\": [\"$CATEGORIES\", \"Investments & Financial Assets\"]}, \"$AMOUNT\", 0]}}, \"savings\": {\"$sum\": {\"$cond\": [{\"$in\": [\"$CATEGORIES\", [\"SAVINGS\", \"Savings For Goals\"]]}, \"$AMOUNT\", 0]}}}}, {\"$project\": {\"_id\": 0, \"discretionary\": 1, \"essential\": 1, \"investments\": 1, \"savings\": 1, \"wealth_building\": {\"$add\": [\"$investments\", \"$savings\"]}, \"leakage_ratio\": {\"$cond\": [{\"$gt\": [\"$essential\", 0]}, {\"$round\": [{\"$divide\": [\"$discretionary\", \"$essential\"]}, 2]}, 0]}, \"savings_rate\": {\"$cond\": [{\"$gt\": [{\"$add\": [\"$essential\", \"$discretionary\"]}, 0]}, {\"$round\": [{\"$multiply\": [{\"$divide\": [\"$wealth_building\", {\"$add\": [\"$essential\", \"$discretionary\"]}]}, 100]}, 1]}, 0]}}}]`\n\n**Pattern 5: Category Verification**\n`[{\"$match\": {\"USER_ID\": 1020864037, \"CATEGORIES\": {\"$exists\": true, \"$ne\": null}}}, {\"$group\": {\"_id\": \"$CATEGORIES\", \"count\": {\"$sum\": 1}}}, {\"$sort\": {\"count\": -1}}]`\n</aggregation_patterns>\n\n<execution_workflow>\n**STEP 1: VERIFY CATEGORIES (If Needed)**\nIf query mentions specific categories, run Pattern 5 first to get exact spelling.\n\n**STEP 2: SELECT PATTERNS BASED ON QUERY TYPE**\n- \"Should I buy X?\" → Call tool for Pattern 1, then call tool AGAIN for Pattern 4\n- \"How am I doing?\" → Call tool for Pattern 3, then call tool AGAIN for Pattern 4\n- \"Where is my money going?\" → Call tool for Pattern 2, then call tool AGAIN for Pattern 4\n- \"Can I afford X?\" → Call tool for Pattern 3, then call tool AGAIN for Pattern 1\n\n**STEP 3: EXECUTE AGGREGATIONS (SEPARATE CALLS)**\nYou MUST make separate, independent tool calls for each pattern you need. NEVER try to merge two patterns into a single JSON array. Use the exact templates provided. The database does the math.\n\n**STEP 4: ANALYZE OUTPUTS**\nApply Strategist-Critic-Moderator framework to tool results, measuring them directly against your `<user_memory_context>`.\n\n**STEP 5: FORMULATE RESPONSE**\nUse output formatting template below.\n</execution_workflow>\n\n<fiduciary_guardrails>\n1. **Deterministic Math:** Rely ONLY on numbers returned by MongoDB aggregations. Never guess, estimate, or round unless explicitly requested.\n2. **Field Distinction:** Always treat these as separate vectors.\n3. **Category Verification:** Never assume category names. Verify using Pattern 5.\n4. **Naming Inconsistencies:** Be aware that \"Snacks & Beverages\" and \"Snacks / Beverages\" are both valid and distinct. Use `$in` arrays to match them safely.\n5. **No Goal Hallucination:** If user mentions goals not in the database, state: \"Goal tracking data is not available in transaction records. I can analyze actual spending instead.\"\n6. **Decimal Precision:** Preserve exact decimals. ₹2.8 stays ₹2.8, not ₹3.\n7. **Null Handling:** Use `$ifNull: [\"$field\", 0]` in aggregations to treat missing fields as zero.\n8. **Date Boundaries (ZERO HALLUCINATION):** You MUST derive \"this month\", \"today\", or \"last week\" STRICTLY from the **CURRENT SYSTEM DATE** injected at the top. If the system date is `2026-03-06...`, then \"this month\" means you MUST query `>= \"2026-03-01\"`. NEVER fallback to template examples like February.\n9. **Strict YYYY-MM-DD Format:** The `DATE` field in the database is saved strictly as a 10-character string (e.g., `\"2026-01-17\"`). NEVER append times like `T00:00:00Z` to your queries.\n10. **Strict Date Operator Usage:** NEVER apply date operators directly to `$DATE`. Because DATE is a string in this schema, you MUST wrap it in `$toDate` first (e.g., `{\"$dayOfWeek\": {\"$toDate\": \"$DATE\"}}`).\n11. **Strict Exists Operator Usage:** NEVER use `$exists` inside `$addFields` or `$project`. `$exists` is a query operator and can ONLY be used inside `$match`.\n12. **Exactly One Stage Per Object:** Each object in your JSON array MUST contain EXACTLY ONE top-level key. NEVER merge multiple stages into a single object. \n13. **No Custom Operator Names:** NEVER rename or append letters/numbers to MongoDB operators to differentiate them. DO NOT output hallucinated keys like `\"$project(a)\"` or `\"$project1\"`.\n14. **NO MERGING PATTERNS (CRITICAL):** NEVER attempt to combine multiple templates into a single query. If you need to run Pattern 1 and Pattern 4, you MUST call the `Aggregate documents in MongoDB` tool two separate times.\n15. **No Raw Arrays in Chat:** NEVER output raw JSON arrays (like `[...]`) directly in your conversational response text. You must pass the array properly as a JSON argument when invoking the tool to prevent output parsing failures.\n16. **Strict Regex Operator Usage:** NEVER use `$regex` or `$regexMatch` inside `$cond`, `$group`, `$addFields`, `$facet`, or `$project`. Use exact string matching with `$in` or `$eq`.\n</fiduciary_guardrails>\n\n<output_formatting>\nRespond directly to the main agent. Be extremely concise. Omit conversational filler like \"Here is the analysis\" or \"Based on the data.\"\n\n**Required Structure:**\n**Financial Snapshot:**\n• Run-rate: ₹X/day (projected ₹Y/month based on Z days data)\n• Cash flow: ₹Income in - ₹Expenses out - ₹Given to others = ₹Net\n• Savings efficiency: X% of discretionary spending goes to wealth-building\n\n**Behavioral Analysis:**\n• Pattern: [Specific observation from aggregation results]\n• Budget Check: [Directly state if they are under/over the budgets listed in your memory context]\n• Opportunity: [Specific category where reduction is possible]\n\n**Advisory:**\n• [Direct recommendation based on math and ACTIVE BUDGETS: affordable/not affordable/marginal]\n• [Specific action: reduce X by Y to afford Z]\n\n**Socratic Question:**\n• [One strategic question to prompt behavioral reflection]\n\n**Tone Guidelines:**\n- Use \"you've spent\" not \"the user has spent\"\n- Use specific numbers: \"₹2,491 projected\" not \"about ₹2,500\"\n- Be direct: \"This exceeds your saved snack budget of ₹100\" not \"This might be expensive\"\n\n**Prohibited Phrases:**\n- \"It seems like...\"\n- \"You might want to consider...\"\n- \"Perhaps...\"\n- \"I think...\"\n- \"Based on my analysis...\" (just give the analysis)\n</output_formatting>\n\n<example_scenarios>\n**Scenario 1: User asks \"Should I buy ₹500 headphones?\"**\nRun Pattern 1 (run-rate: ₹88.99/day, projected ₹2,491/month)\nRun Pattern 4 (discretionary: ₹350, essential: ₹1,100, leakage: 0.32)\nOutput:\n**Financial Snapshot:** Run-rate ₹89/day. Cash flow -₹200 (negative). Savings efficiency 37%.\n**Behavioral Analysis:** Pattern: 8 snack transactions this month. Budget Check: Projected monthly spend exceeds the ₹2,000 monthly limit saved in memory. Opportunity: Reduce snack frequency by 50% to free ₹93.\n**Advisory:** ₹500 purchase breaches your total monthly budget rule. Not recommended while cash flow is negative. Alternative: Delay 1 week, reduce snacks, then purchase.\n**Socratic Question:** What's driving the headphone need now versus waiting until cash flow is positive?\n</example_scenarios>",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -5056,
+        3456
+      ],
+      "id": "679246bf-34b7-4815-9baa-e6fac2c85b34",
+      "name": "advisor"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -5040,
+        3664
+      ],
+      "id": "025446cd-1bf8-433f-8dd7-4c19f93c9c22",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c58644ae-4470-439c-b09f-d2052d8d7a60",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.text }}",
+                    "rightValue": "/xl",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "xl"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c9c30058-fa6f-4a5f-8631-a778d40deb45",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/savings",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "savings"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c2582c37-0d5e-4363-8b92-d222e911342d",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/insert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "insert"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -9760,
+        3392
+      ],
+      "id": "865b9576-7af4-4937-b08a-4a467cb5348d",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -5680,
+        3664
+      ],
+      "id": "ba95432f-629b-475d-8e61-5c43230708f7",
+      "name": "Calculator3"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -6320,
+        3664
+      ],
+      "id": "faeaac78-d0b4-47ca-b227-b6975e679e4f",
+      "name": "Calculator2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -6448,
+        3664
+      ],
+      "id": "f7a2aaaf-75b4-4b2c-9a37-b1e7e595ab88",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "ohL2Uvfsu8IgpBBt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -5936,
+        3664
+      ],
+      "id": "02c9713b-0cde-409f-b32c-cdca97819e41",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "ohL2Uvfsu8IgpBBt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -5296,
+        3664
+      ],
+      "id": "0a358a81-90d7-4509-a0cf-c6a3baadad62",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "ohL2Uvfsu8IgpBBt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Fetch_Saved_Funds\n\n**Description:**\nUse this tool SECOND, only after you have retrieved the user's goals from the `Fetch_Current_Goals` tool. \n\n**What this tool does:**\nIt executes a MongoDB JSON query to find out how much actual money the user has saved or invested towards their goals in reality. \n\n**Execution Rule:**\nWrite a STRICT MongoDB JSON query to sum up the `AMOUNT` of transactions that match the user's savings/investment patterns. \n- Look for items categorized as \"Savings\" or \"Investments & Financial Assets\".\n- Look for specific `ITEM` or `NOTE` fields that match the names of the goals you found in Airtable (e.g., if Airtable says they are saving for a \"domain\", query the database for items matching \"domain\").\n- Output ONLY the raw JSON query object. Do not output conversational text.",
+        "operation": "aggregate",
+        "collection": "DSR_RAW_DATA",
+        "query": "={{ (res => typeof res === 'string' ? res : JSON.stringify(res))($fromAI('Query', 'Output ONLY a raw JSON array of aggregation stages. No markdown.', 'json')) }}"
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [
+        -5552,
+        3664
+      ],
+      "id": "41ab6500-faf9-42c1-95bb-7805b2b76ec0",
+      "name": "Aggregate documents in MongoDB1",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Find_Categories\n\n**Description:**\nCRITICAL: ALWAYS use this tool FIRST before using any aggregation or fetching tools. \nUse this to find out exactly how categories are named and what categories exist in the database for saving transactions. Never write a MongoDB query without running this tool first to verify the spelling and structure of the available categories.",
+        "collection": "categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [
+        -5424,
+        3664
+      ],
+      "id": "593d61d4-5f74-450c-abeb-233d66316dc2",
+      "name": "Find_Categories1",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Find_Categories\n\n**Description:**\nCRITICAL: ALWAYS use this tool FIRST before using any aggregation or fetching tools. \nUse this to find out exactly how categories are named and what categories exist in the database for saving transactions. Never write a MongoDB query without running this tool first to verify the spelling and structure of the available categories.",
+        "collection": "categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [
+        -4912,
+        3664
+      ],
+      "id": "93caeb69-7761-44d2-8822-57a73831e9c4",
+      "name": "Find_Categories2",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -6912,
+        3456
+      ],
+      "id": "3a7b94f8-0125-4d15-9413-3025e27e1d7d",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "ohL2Uvfsu8IgpBBt",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "**Name:** Find_Categories\n\n**Description:**\nCRITICAL: ALWAYS use this tool FIRST before using any aggregation or fetching tools. \nUse this to find out exactly how categories are named and what categories exist in the database for saving transactions. Never write a MongoDB query without running this tool first to verify the spelling and structure of the available categories.",
+        "collection": "categories",
+        "options": {
+          "projection": "{\n  \"name\": 1,\n  \"_id\": 0\n}"
+        }
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [
+        -6192,
+        3696
+      ],
+      "id": "c9961e44-1993-47d8-8aed-159be9893f43",
+      "name": "Find_Categories",
+      "credentials": {
+        "mongoDb": {
+          "id": "xiI1fYdCq0KpMtVc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Fetch_Saved_Funds\n\n**Description:**\nUse this tool SECOND, only after you have retrieved the user's goals from the `Fetch_Current_Goals` tool. \n\n**What this tool does:**\nIt executes a MongoDB JSON query to find out how much actual money the user has saved or invested towards their goals in reality. \n\n**Execution Rule:**\nWrite a STRICT MongoDB JSON query to sum up the `AMOUNT` of transactions that match the user's savings/investment patterns. \n- Look for items categorized as \"Savings\" or \"Investments & Financial Assets\".\n- Look for specific `ITEM` or `NOTE` fields that match the names of the goals you found in Airtable (e.g., if Airtable says they are saving for a \"domain\", query the database for items matching \"domain\").\n- Output ONLY the raw JSON query object. Do not output conversational text.",
+        "operation": "aggregate",
+        "collection": "=DSR_RAW_DATA",
+        "query": "={{ (res => { \n    let str = typeof res === 'string' ? res : JSON.stringify(res); \n    return str.replace(/\\$\\$/g, '$'); \n})($fromAI('Query', 'Output ONLY a raw JSON array of aggregation stages. No markdown.', 'json')) }}"
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [
+        -6080,
+        3680
+      ],
+      "id": "1dc16dd4-5542-4ff0-a1b0-f1387dab1f04",
+      "name": "Aggregate documents in MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Name:** Fetch_Current_Spending_And_Habits\n\n**Description:**\nUse this tool SECOND to query the user's current month transactions. \n\n**Execution Rule:**\nWrite a MongoDB JSON query to fetch data for the CURRENT MONTH. \n- You need to sum up their total spending so far.\n- You must also specifically check how much they have already spent in the `category_guess` provided in your input to check for bad spending habits (e.g., \"death by a thousand cuts\").\n- Output ONLY the raw JSON query.",
+        "operation": "aggregate",
+        "collection": "DSR_RAW_DATA",
+        "query": "={{ (res => { \n    let str = typeof res === 'string' ? res : JSON.stringify(res); \n    return str.replace(/\\$\\$/g, '$'); \n})($fromAI('Query', 'Output ONLY a raw JSON array of aggregation stages. No markdown.', 'json')) }}"
+      },
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [
+        -4784,
+        3664
+      ],
+      "id": "ff0ffd2b-679e-4882-b53e-44eae1c7cf75",
+      "name": "Aggregate documents in MongoDB2",
+      "credentials": {
+        "mongoDb": {
+          "id": "AhyDnW7M59OPWt4V",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Ai agent",
+        "height": 864,
+        "width": 4544,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8544,
+        3056
+      ],
+      "typeVersion": 1,
+      "id": "84b4c26c-957b-4e7a-9881-15a7ffa5a396",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# File upload",
+        "height": 784,
+        "width": 7952,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -9136,
+        4480
+      ],
+      "typeVersion": 1,
+      "id": "9edab803-943f-4cb1-98ab-4a4cd4f26da3",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Daily Entries\n",
+        "height": 672,
+        "width": 4912,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8128,
+        976
+      ],
+      "typeVersion": 1,
+      "id": "eaedc884-07d4-495a-a419-c286ba86094b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# online Entries",
+        "height": 496,
+        "width": 4912,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8128,
+        1664
+      ],
+      "typeVersion": 1,
+      "id": "7f86ae3e-9045-48f3-bc33-6f569512c5a7",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# Income/Expense",
+        "height": 592,
+        "width": 4912,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8128,
+        2176
+      ],
+      "typeVersion": 1,
+      "id": "a9ff63ea-27ab-49e2-8743-3fd208c055c5",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -5712,
+        3216
+      ],
+      "id": "6453e395-32ee-4dfd-a62b-452b98fb91d7",
+      "name": "DeepSeek Chat Model3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "7WUlZxCLTB1BLn95",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=memory:{{ String($('Telegram Trigger').first().json.message.from.id) }}\n",
+        "sessionTTL": 600,
+        "contextWindowLength": 3
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        -5888,
+        3456
+      ],
+      "id": "d380fbef-3976-4b26-8ca6-bbfb6534b672",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "eGLZcexgmqXdB7s8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Name: Manage_User_Memory\n\nDescription:\nUse this tool **only** to SAVE the user's financial context in the Airtable memory database. This includes monthly budgets, savings targets (e.g., \"save for domain\"), fixed expenses, investment goals, and temporary financial adjustments. CRITICAL: You MUST evaluate and assign a TTL (Time-To-Live) for every memory you save.\n\nWhen to use:\n\nThe user explicitly says \"set my budget to X\" or \"save this goal\",\"Remeber X\".\n\nThe user asks \"what is my current budget?\" or \"what are my goals?\"\n\nYou successfully asked for consent to save a new financial limit, and the user said yes.\n\nThe user declares a temporary financial state (e.g., \"money is tight this week\", \"I have an extra ₹500 today\").\n\nDo NOT use this tool to:\n\nLog a daily transaction (like buying snacks or paying rent). That data goes to the transaction database, not the memory database.\n\nInput: Pass a strict JSON object with the action (\"save\", \"update\", or \"fetch\"), the specific detail, and the calculated TTL.\nCRITICAL TTL RULES (ABSOLUTE DATES ONLY):\n\nPermanent: For ongoing budgets, fixed expenses, or long-term goals, set \"ttl\": \"LONG TERM\".\n\nTemporary (ZERO HALLUCINATION): You MUST look at the CURRENT SYSTEM DATE and calculate the exact mathematical expiration date in YYYY-MM-DD format. NEVER save relative words (like \"this week\" or \"this month\").\n\nIf user says \"this month\", set TTL to the last day of the current month (e.g., \"2026-03-31\").\n\nIf user says \"this week\", calculate the date 7 days from today and set that as the TTL (e.g., \"2026-03-13\").\n\nIf user says \"today\", set TTL to today's exact date (e.g., \"2026-03-06\").\n\nExample Inputs:\n\nPermanent: {\"action\": \"save\", \"category\": \"monthly_budget\", \"amount\": 2000, \"ttl\": \"LONG TERM\"}\n\nTemporary (This Week): {\"action\": \"save\", \"category\": \"snack_limit\", \"amount\": 50, \"ttl\": \"2026-03-13\"}\n\nTemporary (This Month): {\"action\": \"save\", \"category\": \"shopping_ban\", \"amount\": 0, \"ttl\": \"2026-03-31\"}",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appnZhJk7xhHtP0rX",
+          "mode": "list",
+          "cachedResultName": "Agent memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgx4NSxtj8dPgSS",
+          "mode": "list",
+          "cachedResultName": "Memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX/tblgx4NSxtj8dPgSS"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Memory": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Memory', ``, 'string') }}",
+            "User": "={{ String($('Telegram Trigger').first().json.message.from.id) }}\n",
+            "TTL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('TTL', `The ABSOLUTE expiration timeframe for this memory. NEVER use relative words like \"this month\", \"this week\", or \"today\". You MUST look at the current system date and calculate the actual month and year (e.g., input \"March 2026\" instead of \"this month\"). For permanent rules, fixed expenses, or ongoing goals, input exactly \"LONG TERM\".`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Memory",
+              "displayName": "Memory",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "User",
+              "displayName": "User",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "TTL",
+              "displayName": "TTL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "create",
+              "displayName": "create",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        -6640,
+        3648
+      ],
+      "id": "5bf7dc4f-c8ef-49e8-88a8-aea3e3979431",
+      "name": "Manage_User_Memory",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "8wWNaC0ZkvNLiFmR",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "=**Persona:** Act as a chill, supportive friend who helps the user track their daily expenses. You are NOT a formal financial advisor, a bank teller, or a boss. You are just a smart buddy looking out for their wallet. Speak casually, using a slight Gen-Z/chill tone (e.g., \"Bro,\" \"looks like,\" \"nice job\"). Avoid lecturing, judging, or giving \"boss level\" advice; offer gentle nudges if the user overspends. Keep responses concise and punchy. Deliver answers directly like a human texting back.\n\n**Context:** You are the final communicator. You will receive a \"Data Payload\" from the backend Orchestrator. Your job is to translate that raw data into a friendly text message for the user.\n\n**Rules & Constraints:**\n1. **Zero Hallucination:** You MUST base your response entirely on the provided Data Payload. Do NOT invent numbers, change math, or make up advice that isn't in the payload. Preserve exact decimals.\n2. **Own the Data (Never Break Character):** Never mention the \"Orchestrator,\" \"Data Payload,\" \"Database,\" \"Sub-agents,\" or \"Backend tools.\" Present the data as if you just looked it up yourself. If the data says a tool failed or data is missing, take ownership naturally (e.g., \"My bad bro, I couldn't find any records for that\").\n3. **Be Concise:** Don't write paragraphs. Use standard bullet points if there is a lot of data.\n\n**CRITICAL TELEGRAM FORMATTING RULES:**\n1. NEVER use asterisks (`*` or `**`) for bolding or bullet points. Telegram's parser will crash if it sees them.\n2. ONLY use standard hyphens (`-`) for bullet points. \n3. If you want to emphasize a word, use CAPITAL LETTERS or emojis. Do NOT use markdown bolding/italics."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -5472,
+        3088
+      ],
+      "id": "bb96675d-79f0-44ef-9991-21d5a71fd4f0",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        -6416,
+        3488
+      ],
+      "id": "cf8a205b-9090-4e56-beb2-fe1ba5c8226f",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "here lays the rules and budgets set by the user",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appnZhJk7xhHtP0rX",
+          "mode": "list",
+          "cachedResultName": "Agent memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblgx4NSxtj8dPgSS",
+          "mode": "list",
+          "cachedResultName": "Memories",
+          "cachedResultUrl": "https://airtable.com/appnZhJk7xhHtP0rX/tblgx4NSxtj8dPgSS"
+        },
+        "filterByFormula": "=={User} = '{{ $('Telegram Trigger').item.json.message.chat.id }}\\n'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        -6784,
+        3648
+      ],
+      "id": "ee6b0d2a-ef7c-4575-b96c-e651b3bc943f",
+      "name": "Search records in Airtable2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "8wWNaC0ZkvNLiFmR",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Image/Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unified Extractor": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Platform Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find documents1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Confirmation Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processing": {
+      "main": [
+        [
+          {
+            "node": "Unified Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Uploading": {
+      "main": [
+        [
+          {
+            "node": "uid search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image/Text": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Uploading",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation Message": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation Message expese": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation Message income": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation Message Online": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation Message Daily": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Unified Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "DB Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Checker": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Insert documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Checker1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Insert documents1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "user chat model",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "user chat model",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents1": {
+      "main": [
+        [
+          {
+            "node": "Insert documents3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Platform Request": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents2": {
+      "main": [
+        [
+          {
+            "node": "Confirmation Message Daily",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Insert documents2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Send a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Insert documents3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Insert documents4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents4": {
+      "main": [
+        [
+          {
+            "node": "Confirmation Message income",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Insert documents5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents5": {
+      "main": [
+        [
+          {
+            "node": "Confirmation Message expese",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "user chat model": {
+      "main": [
+        [
+          {
+            "node": "DB Checker1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "user chat model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Memories": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "mian agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Find documents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        [
+          {
+            "node": "Delete a chat message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents3": {
+      "main": [
+        [
+          {
+            "node": "Confirmation Message Online",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Insert documents6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents6": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "uid create",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "uid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Year search": {
+      "main": [
+        [
+          {
+            "node": "year if",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "year if": {
+      "main": [
+        [
+          {
+            "node": "Year create",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Year",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Year create": {
+      "main": [
+        [
+          {
+            "node": "Year",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Year": {
+      "main": [
+        [
+          {
+            "node": "month search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uid": {
+      "main": [
+        [
+          {
+            "node": "Year search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "month search": {
+      "main": [
+        [
+          {
+            "node": "month if",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "month if": {
+      "main": [
+        [
+          {
+            "node": "month create",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "month create": {
+      "main": [
+        [
+          {
+            "node": "month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "month": {
+      "main": [
+        [
+          {
+            "node": "date search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uid search": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uid create": {
+      "main": [
+        [
+          {
+            "node": "uid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "date search": {
+      "main": [
+        [
+          {
+            "node": "date check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "date check": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file2": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "date": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mian agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Expenses": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Goals / Savings": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "Check Goals / Savings",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records in Airtable1": {
+      "ai_tool": [
+        [
+          {
+            "node": "advisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "advisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "advisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Find documents2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Processing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Memories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Check Goals / Savings",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analyze Expenses",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze Expenses",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Check Goals / Savings",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "advisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate documents in MongoDB1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Check Goals / Savings",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find_Categories1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Check Goals / Savings",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find_Categories2": {
+      "ai_tool": [
+        [
+          {
+            "node": "advisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find_Categories": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analyze Expenses",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate documents in MongoDB": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analyze Expenses",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate documents in MongoDB2": {
+      "ai_tool": [
+        [
+          {
+            "node": "advisor",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manage_User_Memory": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records in Airtable2": {
+      "ai_tool": [
+        [
+          {
+            "node": "mian agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "06a9cd14-21cf-4678-b515-3320f03aec42",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "68ce26266aac46466ac9888afe57ba6667623f6acd108577d9569abbad06e79e"
+  },
+  "id": "VYSAiTx7d2oIgmOXt0Cv9",
+  "tags": []
+}
