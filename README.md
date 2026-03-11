@@ -1,99 +1,254 @@
-# Autonomous Financial Intelligence Pipeline
+# 🤖 Agentic Financial Tracker
 
-**An LLM-Orchestrated personal finance engine built on n8n.**
+An **AI-powered personal finance tracker** built using **n8n, Telegram, DeepSeek AI, and MongoDB**.
+This project allows users to log expenses, income, and transactions simply by sending **natural language messages** to a Telegram bot.
 
-This repository contains a high-performance **n8n workflow** that transforms Telegram into a sophisticated financial terminal. By leveraging **Large Language Models (LLMs)** and **multi-agent orchestration**, the system automates the entire lifecycle of financial tracking—from unstructured data extraction and receipt archiving to real-time behavioral advisory.
-
----
-
-## 🏗️ System Architecture & Implementation
-
-The engine is engineered using a **Modular Agentic Framework**, ensuring that data ingestion is decoupled from analytical reasoning.
-
-### 1. NLP Ingestion & Entity Extraction
-
-The entry point is a **Telegram Trigger** that accepts both natural language and binary media.
-
-* **NER Processing:** The system utilizes a **Unified Extractor** (powered by DeepSeek) to perform Named Entity Recognition. It isolates variables such as `item`, `amount`, `category`, `platform`, and `payment method` from strings like "Lunch 120 via GPay".
-* **Classification Logic:** A **Switch Node** routes transactions into specific pipelines: `Online`, `Daily`, `Income`, or `Expense`.
-
-### 2. AI Category Normalization
-
-To maintain database integrity and prevent categorical drift, the workflow employs an **AI Category Normalizer**.
-
-* **Fuzzy Matching:** Before insertion, the system queries a MongoDB collection of existing categories.
-* **Deduplication:** The AI compares the new input against the global list (e.g., mapping "coffee" to "Snacks & Beverages") to ensure a clean, queryable ledger.
-
-### 3. Automated Document Cloud
-
-For image-based inputs (receipts), the system executes a recursive folder-creation logic on **Google Drive**.
-
-* **Dynamic Pathing:** Files are automatically organized into a `Year > Month > Date` directory structure based on the transaction timestamp.
-* **Verification:** The workflow triggers a confirmation back to Telegram once the binary transfer is finalized.
-
-### 4. Behavioral Advisor Agent
-
-The "brain" of the system is the **Main Agent**, which functions as a financial logic engine.
-
-* **Contextual Memory:** It retrieves user-defined budget limits and goals from **Airtable**.
-* **Data Aggregation:** When a user asks "Can I afford this?", the agent executes complex **MongoDB Aggregation Pipelines** to calculate current-month "burn rates" and "run rates".
-* **Deterministic Math:** The system is explicitly instructed to rely on raw database sums rather than LLM "hallucinations" for financial calculations.
+The system automatically **extracts, categorizes, and stores financial data** using AI agents and workflow automation. 
 
 ---
 
-## 🛠️ Tech Stack
+# 🚀 Features
 
-| Component | Technology |
-| --- | --- |
-| **Automation Engine** | [n8n](https://n8n.io/) |
-| **Language Models** | DeepSeek-V3, OpenRouter (various models) |
-| **Primary Database** | MongoDB (DSR_RAW_DATA collection) |
-| **Memory Bank** | Airtable (User-defined budgets/goals) |
-| **Session State** | Redis (Chat history management) |
-| **Binary Storage** | Google Drive API |
+### 💬 Natural Language Expense Logging
+
+Users can log transactions using simple messages:
+
+```
+Lunch at Cafe Coffee Day 350
+Amazon shoes 1200
+Petrol 500
+Salary 30000
+Paid Rahul 200
+```
+
+The system extracts:
+
+* Item
+* Category
+* Amount
+* Platform
+* Payment Method
+* Transaction Type
 
 ---
 
-## 📊 Database Schema (MongoDB)
+### 🧠 AI Powered Data Extraction
 
-All transactions are normalized into the following schema for high-precision reporting:
+The workflow uses an **LLM-based information extractor** to identify:
 
-```json
-{
-  "USER_ID": Number,
-  "DATE": "YYYY-MM-DD",
-  "CATEGORIES": String,
-  "ITEM": String,
-  "AMOUNT": Double,
-  "PAYMENT": String,
-  "MODE": "ONLINE" | "OFFLINE",
-  "PLATFORM": String,
-  "STATUS": "Pending" | "Delivered"
-}
+* Transaction type
 
+  * Online
+  * Daily
+  * Income
+  * Expense
+* Spending item
+* Amount
+* Category
+* Platform / Merchant
+* Payment method
+* Status (delivered, shipped, etc.)
+* Notes
+
+---
+
+### 📂 Smart Category Management
+
+An AI agent checks new categories against existing categories stored in MongoDB.
+
+Example:
+
+```
+Coffee takeaway
+↓
+Coffee / Tea / Drinks
+```
+
+If no similar category exists, the system creates a **normalized new category**.
+
+This ensures the dataset remains **clean and searchable**.
+
+---
+
+### 🗄️ Automated Database Storage
+
+All transactions are stored in **MongoDB**.
+
+Example structure:
+
+```
+USER_ID
+DATE
+ITEM
+CATEGORY
+AMOUNT
+PAYMENT
+PLATFORM
+STATUS
+NOTE
+MODE
+```
+
+This structure enables easy analytics and reporting.
+
+---
+
+### 📊 Expense Report Export
+
+Users can generate a report directly from Telegram.
+
+The system will:
+
+1. Retrieve user data from MongoDB
+2. Convert it into structured format
+3. Generate an **Excel report**
+4. Send the report through Telegram
+
+---
+
+### 📁 File Upload Storage
+
+Users can upload receipts or files.
+
+These files are automatically stored in **Google Drive** with a folder structure:
+
+```
+Year
+  └── Month
+       └── Date
+             └── Uploaded Files
 ```
 
 ---
 
-## 🚀 Deployment
+# 🏗️ System Architecture
 
-1. **Import Workflow:** Load the `final chat bot.json` into your n8n environment.
-2. **Environment Variables:** Configure credentials for Telegram, MongoDB, Airtable, Google Drive, and your chosen LLM provider.
-3. **Database Initialization:** Create the `DSR_RAW_DATA` collection in MongoDB and a `Memories` table in Airtable with fields for `User`, `Memory`, and `TTL`.
-4. **Execution:** Activate the workflow to begin receiving real-time financial telemetry.
+```
+User (Telegram)
+      │
+      ▼
+Telegram Bot Trigger
+      │
+      ▼
+AI Information Extractor
+      │
+      ▼
+Transaction Type Classifier
+      │
+      ▼
+Category Normalization Agent
+      │
+      ▼
+MongoDB Storage
+      │
+      ▼
+Confirmation Message
+```
+
+Additional services used:
+
+* Google Drive (file storage)
+* Airtable (memory storage)
+* Excel export system
 
 ---
-## ⚖️ License
 
-**MIT License**
+# 🛠 Tech Stack
 
-Copyright (c) 2026 Joyal
+| Technology       | Purpose              |
+| ---------------- | -------------------- |
+| n8n              | Workflow automation  |
+| Telegram Bot API | User interface       |
+| DeepSeek LLM     | NLP and extraction   |
+| MongoDB          | Transaction database |
+| Google Drive     | File storage         |
+| Airtable         | AI memory storage    |
+| JavaScript nodes | Custom data logic    |
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# 📦 Installation
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+### 1 Install n8n
 
-## 👨‍💻 Author
-**Joyal** 
+```
+npm install -g n8n
+```
+
+or run with Docker.
+
+---
+
+### 2 Import Workflow
+
+1. Open **n8n**
+2. Click **Import Workflow**
+3. Upload the provided workflow JSON file
+
+---
+
+### 3 Configure Credentials
+
+Connect the following services:
+
+* Telegram Bot API
+* MongoDB
+* DeepSeek API
+* Google Drive
+* Airtable
+
+---
+
+### 4 Activate the Workflow
+
+Start the workflow and send messages to your Telegram bot.
+
+---
+
+# 💡 Example Interaction
+
+User message:
+
+```
+Swiggy burger 220
+```
+
+Bot response:
+
+```
+Successfully added
+
+Date: 2026-03-12
+Item: Burger
+Category: Dining out / restaurants
+Amount: 220
+Payment Method: GPay
+Platform: Swiggy
+Status: Pending
+```
+
+---
+
+# 🎯 Use Cases
+
+* Personal finance tracking
+* AI expense logging
+* Budget monitoring
+* Automated spending reports
+* AI financial assistants
+---
+
+# 📜 License
+
+MIT License
+
+```
+MIT License
+
+Copyright (c) 2026 Joyal Aliyas
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction.
+```
+---
